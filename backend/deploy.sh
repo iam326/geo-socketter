@@ -6,6 +6,7 @@ source ../config.sh
 
 readonly STACK_NAME="${PROJECT_NAME}-backend"
 readonly TEMPLATE_FILE="$(pwd)/template.yaml"
+readonly CONNECTIONS_TABLE_NAME="${PROJECT_NAME}-connections"
 
 make build
 
@@ -16,6 +17,9 @@ sam package \
 sam deploy \
   --template-file packaged.yaml \
   --stack-name ${STACK_NAME} \
-  --capabilities CAPABILITY_IAM
+  --capabilities CAPABILITY_IAM \
+  --parameter-overrides \
+    NamePrefix=${PROJECT_NAME} \
+    ConnectionsTableName=${CONNECTIONS_TABLE_NAME}
 
 rm packaged.yaml
