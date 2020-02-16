@@ -7,6 +7,8 @@ Parameters:
     Type: String
   ConnectionsTableName:
     Type: String
+  WebSocketName:
+    Type: String
 
 Globals:
   Function:
@@ -69,13 +71,12 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref ConnectionsTableName
-        # Todo:
-        # - Statement:
-        #   - Effect: 'Allow'
-        #     Action:
-        #       - 'execute-api:ManageConnections'
-        #     Resource:
-        #       - ''
+        - Statement:
+          - Effect: 'Allow'
+            Action:
+              - 'execute-api:ManageConnections'
+            Resource:
+              - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocket}/*'
 
   HelloWorldFunction:
     Type: AWS::Serverless::Function
@@ -93,6 +94,81 @@ Resources:
       Environment:
         Variables:
           PARAM1: VALUE
+
+  WebSocket:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Ref WebSocketName
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: "$request.body.message"
+
+  ConnectInteg:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocket
+      Description: Connect Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnConnectFunction.Arn}/invocations'
+
+  ConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocket
+      RouteKey: $connect
+      AuthorizationType: NONE
+      OperationName: ConnectRoute
+      Target: !Sub 'integrations/${ConnectInteg}'
+
+  DisconnectInteg:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocket
+      Description: Disconnect Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnDisconnectFunction.Arn}/invocations'
+
+  DisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocket
+      RouteKey: $disconnect
+      AuthorizationType: NONE
+      OperationName: DisconnectRoute
+      Target: !Sub 'integrations/${DisconnectInteg}'
+
+  SendInteg:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocket
+      Description: Send Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SendMessageFunction.Arn}/invocations'
+
+  SendRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocket
+      RouteKey: sendmessage
+      AuthorizationType: NONE
+      OperationName: SendRoute
+      Target: !Sub 'integrations/${SendInteg}'
+
+  Deployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn:
+      - ConnectRoute
+      - DisconnectRoute
+      - SendRoute
+    Properties:
+      ApiId: !Ref WebSocket
+
+  Stage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      StageName: Prod
+      Description: Prod Stage
+      DeploymentId: !Ref Deployment
+      ApiId: !Ref WebSocket
 
 Outputs:
   HelloWorldAPI:
