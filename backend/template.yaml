@@ -42,6 +42,16 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref ConnectionsTableName
 
+  OnConnectPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - WebSocket
+      - OnConnectFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref OnConnectFunction
+      Principal: apigateway.amazonaws.com
+
   OnDisconnectFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -56,6 +66,16 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref ConnectionsTableName
+
+  OnDisconnectPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - WebSocket
+      - OnDisconnectFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref OnDisconnectFunction
+      Principal: apigateway.amazonaws.com
 
   SendMessageFunction:
     Type: AWS::Serverless::Function
@@ -77,6 +97,16 @@ Resources:
               - 'execute-api:ManageConnections'
             Resource:
               - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocket}/*'
+
+  SendMessagePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - WebSocket
+      - SendMessageFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SendMessageFunction
+      Principal: apigateway.amazonaws.com
 
   HelloWorldFunction:
     Type: AWS::Serverless::Function
