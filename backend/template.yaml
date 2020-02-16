@@ -25,6 +25,58 @@ Resources:
           KeyType: 'HASH'
       BillingMode: PAY_PER_REQUEST
 
+  OnConnectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${NamePrefix}-OnConnectFunction'
+      CodeUri: onconnect/
+      Handler: onconnect
+      MemorySize: 256
+      Runtime: go1.x
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ConnectionsTableName
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ConnectionsTableName
+
+  OnDisconnectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${NamePrefix}-OnDisconnectFunction'
+      CodeUri: ondisconnect/
+      Handler: ondisconnect
+      MemorySize: 256
+      Runtime: go1.x
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ConnectionsTableName
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ConnectionsTableName
+
+  SendMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${NamePrefix}-SendMessageFunction'
+      CodeUri: sendmessage/
+      Handler: sendmessage
+      MemorySize: 256
+      Runtime: go1.x
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ConnectionsTableName
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ConnectionsTableName
+        # Todo:
+        # - Statement:
+        #   - Effect: 'Allow'
+        #     Action:
+        #       - 'execute-api:ManageConnections'
+        #     Resource:
+        #       - ''
+
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
