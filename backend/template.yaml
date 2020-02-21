@@ -184,3 +184,24 @@ Resources:
       Description: Prod Stage
       DeploymentId: !Ref Deployment
       ApiId: !Ref WebSocket
+
+Outputs:
+  ConnectionsTableArn:
+    Description: 'Connections table ARN'
+    Value: !GetAtt ConnectionsTable.Arn
+
+  OnConnectFunctionArn:
+    Description: 'OnConnect function ARN'
+    Value: !GetAtt OnConnectFunction.Arn
+
+  OnDisconnectFunctionArn:
+    Description: 'OnDisconnect function ARN'
+    Value: !GetAtt OnDisconnectFunction.Arn
+
+  SendMessageFunctionArn:
+    Description: 'SendMessage function ARN'
+    Value: !GetAtt SendMessageFunction.Arn
+
+  WebSocketURI:
+    Description: 'The WSS Protocol URI to connect to'
+    Value: !Sub 'wss://${WebSocket}.execute-api.${AWS::Region}.amazonaws.com/${Stage}'
