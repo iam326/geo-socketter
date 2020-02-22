@@ -33,7 +33,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub '${NamePrefix}-OnConnectFunction'
-      CodeUri: onconnect/
+      CodeUri: handlers/
       Handler: onconnect
       MemorySize: 256
       Runtime: go1.x
@@ -58,7 +58,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub '${NamePrefix}-OnDisconnectFunction'
-      CodeUri: ondisconnect/
+      CodeUri: handlers/
       Handler: ondisconnect
       MemorySize: 256
       Runtime: go1.x
@@ -83,7 +83,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub '${NamePrefix}-SendMessageFunction'
-      CodeUri: sendmessage/
+      CodeUri: handlers/
       Handler: sendmessage
       MemorySize: 256
       Runtime: go1.x

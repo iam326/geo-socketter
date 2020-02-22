@@ -4,11 +4,9 @@ deps:
 	go get -u ./...
 
 clean:
-	rm -rf ./onconnect/onconnect
-	rm -rf ./ondisconnect/ondisconnect
-	rm -rf ./sendmessage/sendmessage
+	rm -rf ./handlers
 	
 build:
-	GOOS=linux GOARCH=amd64 go build -o onconnect/onconnect ./onconnect
-	GOOS=linux GOARCH=amd64 go build -o ondisconnect/ondisconnect ./ondisconnect
-	GOOS=linux GOARCH=amd64 go build -o sendmessage/sendmessage ./sendmessage
+	GOOS=linux GOARCH=amd64 go build -o ./handlers ./onconnect
+	GOOS=linux GOARCH=amd64 go build -o ./handlers ./ondisconnect
+	GOOS=linux GOARCH=amd64 go build -o ./handlers ./sendmessage
