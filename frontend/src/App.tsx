@@ -1,10 +1,16 @@
 import React from 'react';
 import './App.css';
 
+import Header from './components/Header';
+import MessageList from './components/message/MessageList';
+import SubmitArea from './components/SubmitArea';
+
 function App() {
   return (
     <div className="App">
-      <p>hello, world</p>
+      <Header />
+      <MessageList />
+      <SubmitArea />
     </div>
   );
 }
