@@ -2,14 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators, ActionCreator } from 'redux';
 
-import { RootState } from '../store/configureStore';
+import { RootState, Message } from '../store/configureStore';
 import { actions } from '../actions/chat';
 import Chat from '../components/Chat';
 
 interface StateToProps {
   status: string;
-  inbox: string[];
-  outbox: string[];
+  messages: Message[];
 }
 
 interface DispatchToProps {
@@ -19,7 +18,7 @@ interface DispatchToProps {
 type Props = StateToProps & DispatchToProps;
 
 function ChatContainer(props: Props) {
-  const { status, inbox, outbox, sendMessage } = props;
+  const { status, messages, sendMessage } = props;
   return (
     <Chat />
   );
@@ -29,8 +28,7 @@ function mapStateToProps(state: RootState): StateToProps {
   const { chat } = state;
   return {
     status: chat.status,
-    inbox: chat.inbox,
-    outbox: chat.outbox
+    messages: chat.messages
   };
 }
 

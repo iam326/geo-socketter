@@ -5,10 +5,17 @@ import logger from 'redux-logger';
 import reducer from '../reducers';
 // import rootSaga from '../sagas/chat';
 
+export type Direction = 'USER' | 'FRIEND';
+
+export interface Message {
+  value: string,
+  direction: Direction;
+  timestamp: number;
+}
+
 export interface ChatState {
   status: string;
-  inbox: string[];
-  outbox: string[];
+  messages: Message[]
 }
 
 export interface RootState {

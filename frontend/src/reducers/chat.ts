@@ -5,8 +5,7 @@ import { actions } from '../actions/chat';
 
 const initialState: ChatState = {
   status: 'NONE',
-  inbox: [],
-  outbox: []
+  messages: []
 };
 
 const chatReducer = reducerWithInitialState(initialState)
