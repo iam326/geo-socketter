@@ -4,6 +4,11 @@ import List from '@material-ui/core/List';
 
 import UserMessage from './UserMessage';
 import FriendMessage from './FriendMessage';
+import { Message } from '../../types'
+
+interface Props {
+  messages: Message[];
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -13,14 +18,19 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function MessageList() {
+export default function MessageList(props: Props) {
   const classes = useStyles();
 
   return (
     <div>
       <List className={classes.list}>
-        <FriendMessage>こんにちは。高橋さん。</FriendMessage>
-        <UserMessage>こんにちは。つよぽんさん。</UserMessage>
+        {
+          props.messages.map((msg: Message, i: number) => (
+            msg.direction === 'USER'
+              ? <UserMessage key={i}>{msg.value}</UserMessage>
+              : <FriendMessage key={i}>{msg.value}</FriendMessage>
+          ))
+        }
       </List>
     </div>
   );

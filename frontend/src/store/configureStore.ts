@@ -2,16 +2,9 @@ import { Action, createStore, applyMiddleware, Store } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import logger from 'redux-logger';
 
+import { Message } from '../types'
 import reducer from '../reducers';
 // import rootSaga from '../sagas/chat';
-
-export type Direction = 'USER' | 'FRIEND';
-
-export interface Message {
-  value: string,
-  direction: Direction;
-  timestamp: number;
-}
 
 export interface ChatState {
   status: string;

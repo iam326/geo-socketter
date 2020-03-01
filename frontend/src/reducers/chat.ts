@@ -5,7 +5,18 @@ import { actions } from '../actions/chat';
 
 const initialState: ChatState = {
   status: 'NONE',
-  messages: []
+  messages: [
+    {
+      value: 'こんにちは、つよぽんさん。',
+      direction: 'USER',
+      timestamp: 0
+    },
+    {
+      value: 'こんにちは、たかはしさん。',
+      direction: 'FRIEND',
+      timestamp: 1
+    }
+  ]
 };
 
 const chatReducer = reducerWithInitialState(initialState)

@@ -1,4 +1,5 @@
 import React from 'react';
+import { ActionCreator } from 'redux';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import 'typeface-roboto';
 import AppBar from '@material-ui/core/AppBar';
@@ -26,7 +27,11 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function BottomAppBar() {
+interface Props {
+  status: string;
+  sendMessage: ActionCreator<void>;
+}
+export default function BottomAppBar(props: Props) {
   const classes = useStyles();
 
   return (
