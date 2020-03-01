@@ -1,17 +1,16 @@
 import React from 'react';
-import './App.css';
+import { Provider } from 'react-redux';
 
-import Header from './components/Header';
-import MessageList from './components/message/MessageList';
-import SubmitArea from './components/SubmitArea';
+import configureStore from './store/configureStore';
+import ChatContainer from './containers/ChatContainer';
+
+const store = configureStore();
 
 function App() {
   return (
-    <div className="App">
-      <Header />
-      <MessageList />
-      <SubmitArea />
-    </div>
+    <Provider store={store}>
+      <ChatContainer />
+    </Provider>
   );
 }
 
