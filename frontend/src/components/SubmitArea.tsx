@@ -7,6 +7,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import SendIcon from '@material-ui/icons/Send';
+import SyncIcon from '@material-ui/icons/Sync';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -69,7 +70,12 @@ export default function SubmitArea(props: Props) {
            className={classes.sendButton}
            onClick={handleClick}
           >
-            <SendIcon />
+            {
+              props.status === 'REQUEST'
+                ? <SyncIcon />
+                : <SendIcon />
+            }
+            
           </IconButton>
         </Toolbar>
       </AppBar>

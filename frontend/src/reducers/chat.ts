@@ -22,7 +22,9 @@ const initialState: ChatState = {
 
 const chatReducer = reducerWithInitialState(initialState)
   .case(actions.sendMessageActions.started, state => {
-    return state;
+    return Object.assign({}, state, {
+      status: 'REQUEST'
+    });
   })
   .case(actions.sendMessageActions.done, (state, action) => {
     const message: Message = {
@@ -31,6 +33,7 @@ const chatReducer = reducerWithInitialState(initialState)
       timestamp: 0
     }
     return Object.assign({}, state, {
+      status: '',
       messages: state.messages.concat(message)
     })
   })
