@@ -31,8 +31,20 @@ interface Props {
   status: string;
   sendMessage: ActionCreator<void>;
 }
-export default function BottomAppBar(props: Props) {
+export default function SubmitArea(props: Props) {
   const classes = useStyles();
+  const [message, setMessage] = React.useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value);
+  };
+
+  const handleClick = () => {
+    if (message.length > 0) {
+      //props.sendMessage(message);
+      setMessage('');
+    }
+  };
 
   return (
     <div>
@@ -48,9 +60,15 @@ export default function BottomAppBar(props: Props) {
               InputProps={{
                 className: classes.input
               }}
+              value={message}
+              onChange={handleChange}
             />
           </form>
-          <IconButton edge="end" className={classes.sendButton}>
+          <IconButton
+           edge="end"
+           className={classes.sendButton}
+           onClick={handleClick}
+          >
             <SendIcon />
           </IconButton>
         </Toolbar>
