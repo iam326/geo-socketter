@@ -2,6 +2,7 @@ import { reducerWithInitialState } from 'typescript-fsa-reducers';
 
 import { ChatState } from '../store/configureStore';
 import { actions } from '../actions/chat';
+import { Message } from '../types';
 
 const initialState: ChatState = {
   status: 'NONE',
@@ -20,10 +21,20 @@ const initialState: ChatState = {
 };
 
 const chatReducer = reducerWithInitialState(initialState)
-  .case(actions.sendMessage.done, state => {
+  .case(actions.sendMessageActions.started, state => {
     return state;
   })
-  .case(actions.sendMessage.failed, state => {
+  .case(actions.sendMessageActions.done, (state, action) => {
+    const message: Message = {
+      value: action.params,
+      direction: 'USER',
+      timestamp: 0
+    }
+    return Object.assign({}, state, {
+      messages: state.messages.concat(message)
+    })
+  })
+  .case(actions.sendMessageActions.failed, state => {
     alert('error!');
     return state;
   });

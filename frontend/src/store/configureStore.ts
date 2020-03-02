@@ -4,7 +4,7 @@ import logger from 'redux-logger';
 
 import { Message } from '../types'
 import reducer from '../reducers';
-// import rootSaga from '../sagas/chat';
+import rootSaga from '../sagas/chat';
 
 export interface ChatState {
   status: string;
@@ -25,7 +25,7 @@ export default function configureStore(initial_state?: any) {
     )
   );
 
-  //sagaMiddleware.run(rootSaga);
+  sagaMiddleware.run(rootSaga);
 
   return store;
 }

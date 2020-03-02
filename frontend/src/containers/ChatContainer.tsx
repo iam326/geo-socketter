@@ -39,7 +39,7 @@ function mapStateToProps(state: RootState): StateToProps {
 
 function mapDispatchToProps(dispatch: Dispatch): DispatchToProps {
   return bindActionCreators({
-      sendMessage: actions.sendMessage.started
+      sendMessage: actions.sendMessage
     }, dispatch);
 }
 

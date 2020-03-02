@@ -41,7 +41,7 @@ export default function SubmitArea(props: Props) {
 
   const handleClick = () => {
     if (message.length > 0) {
-      //props.sendMessage(message);
+      props.sendMessage(message);
       setMessage('');
     }
   };
