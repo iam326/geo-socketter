@@ -35,11 +35,22 @@ const chatReducer = reducerWithInitialState(initialState)
     return Object.assign({}, state, {
       status: '',
       messages: state.messages.concat(message)
-    })
+    });
   })
   .case(actions.sendMessageActions.failed, state => {
     alert('error!');
     return state;
+  })
+  .case(actions.receiveMessage, (state, payload) => {
+    const message: Message = {
+      value: payload,
+      direction: 'FRIEND',
+      timestamp: 0
+    }
+    return Object.assign({}, state, {
+      status: '',
+      messages: state.messages.concat(message)
+    })
   });
 
 export default chatReducer;

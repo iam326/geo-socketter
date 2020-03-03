@@ -1,3 +1,4 @@
+import { eventChannel } from 'redux-saga';
 import { all, call, fork, take, put } from 'redux-saga/effects';
 import { actions } from '../actions/chat';
 
@@ -18,7 +19,31 @@ function connect() {
   });
 }
 
-function* write(ws: SocketIOClient.Socket) {
+function subscribe(ws: WebSocket) {
+  return eventChannel(emit => {
+    ws.onmessage = event => {
+      switch(event.type) {
+        case 'message':
+          emit(actions.receiveMessage(event.data));
+          break;
+        default:
+          console.log(event.type);
+          break;
+      }
+    }
+    return () => {};
+  });
+}
+
+function* read(ws: WebSocket) {
+  const channel = yield call(subscribe, ws);
+  while (true) {
+    const action = yield take(channel);
+    yield put(action);
+  }
+}
+
+function* write(ws: WebSocket) {
   while (true) {
     const { payload } = yield take(actions.sendMessage);
     yield put(actions.sendMessageActions.started(payload));
@@ -30,7 +55,8 @@ function* write(ws: SocketIOClient.Socket) {
   }
 }
 
-function* handleIO(socket: SocketIOClient.Socket) {
+function* handleIO(socket: WebSocket) {
+  yield fork(read, socket);
   yield fork(write, socket);
 }
 
