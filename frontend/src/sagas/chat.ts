@@ -1,4 +1,5 @@
-import { all, call, fork } from 'redux-saga/effects';
+import { all, call, fork, take, put } from 'redux-saga/effects';
+import { actions } from '../actions/chat';
 
 function getWebSocketUri() {
   const uri = process.env.REACT_APP_WEB_SOCKET_URI;
@@ -17,9 +18,26 @@ function connect() {
   });
 }
 
+function* write(ws: SocketIOClient.Socket) {
+  while (true) {
+    const { payload } = yield take(actions.sendMessage);
+    yield put(actions.sendMessageActions.started(payload));
+    ws.send(JSON.stringify({
+      message: 'sendmessage',
+      data: payload
+    }));
+    yield put(actions.sendMessageActions.done({params: payload}));
+  }
+}
+
+function* handleIO(socket: SocketIOClient.Socket) {
+  yield fork(write, socket);
+}
+
 function* watchOnSocket() {
   try {
-    yield call(connect);
+    const ws = yield call(connect);
+    yield fork(handleIO, ws);
   } catch (e) {
     console.error('socket: error:', e);
   }
