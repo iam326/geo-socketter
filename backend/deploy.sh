@@ -25,3 +25,12 @@ sam deploy \
     WebSocketName=${WEB_SOCKET_NAME}
 
 rm packaged.yaml
+
+WEB_SOCKET_URI=$(aws cloudformation describe-stacks \
+  --stack-name ${STACK_NAME} \
+  --query 'Stacks[].Outputs[?OutputKey==`WebSocketURI`].OutputValue' \
+  --output text)
+
+echo "
+REACT_APP_WEB_SOCKET_URI=${WEB_SOCKET_URI}
+" > ../frontend/.env

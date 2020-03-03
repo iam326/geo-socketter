@@ -80,10 +80,12 @@ func handler(ctx context.Context, request events.APIGatewayWebsocketProxyRequest
 
 	for _, conn := range connections {
 		connectionID := conn.ConnectionID
-		svc.PostToConnection(&apigatewaymanagementapi.PostToConnectionInput{
-			ConnectionId: &connectionID,
-			Data:         []byte(postData.Data),
-		})
+		if request.RequestContext.ConnectionID != connectionID {
+			svc.PostToConnection(&apigatewaymanagementapi.PostToConnectionInput{
+				ConnectionId: &connectionID,
+				Data:         []byte(postData.Data),
+			})
+		}
 	}
 
 	return events.APIGatewayProxyResponse{
