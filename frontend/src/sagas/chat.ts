@@ -1,4 +1,3 @@
-import io from 'socket.io-client';
 import { all, call, fork } from 'redux-saga/effects';
 
 function getWebSocketUri() {
@@ -10,30 +9,19 @@ function getWebSocketUri() {
 }
 
 function connect() {
-  const socket = io(
-    getWebSocketUri(), {
-      path: `/Prod`,
-      transports: [
-        'websocket',
-        'polling',
-        'flashsocket'
-      ]
-    }
-  );
+  const ws = new WebSocket(getWebSocketUri());
   return new Promise(resolve => {
-    socket.on('connect', () => {
-      resolve(socket);
-    });
+    ws.onopen = () => {
+      resolve(ws);
+    };
   });
 }
 
 function* watchOnSocket() {
-  while (true) {
-    try {
-      yield call(connect)
-    } catch (e) {
-      console.error('socket: error:', e);
-    }
+  try {
+    yield call(connect);
+  } catch (e) {
+    console.error('socket: error:', e);
   }
 }
 
