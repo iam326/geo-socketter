@@ -1,16 +1,25 @@
 import io from 'socket.io-client';
 import { all, call, fork } from 'redux-saga/effects';
 
-const url = 'URL'
+function getWebSocketUri() {
+  const uri = process.env.REACT_APP_WEB_SOCKET_URI;
+  if (!uri) {
+    throw Error('web socket uri not found');
+  }
+  return uri;
+}
+
 function connect() {
-  const socket = io(url, {
-    path: `/Prod`,
-    transports: [
-      'websocket',
-      'polling',
-      'flashsocket'
-    ]
-  });
+  const socket = io(
+    getWebSocketUri(), {
+      path: `/Prod`,
+      transports: [
+        'websocket',
+        'polling',
+        'flashsocket'
+      ]
+    }
+  );
   return new Promise(resolve => {
     socket.on('connect', () => {
       resolve(socket);
