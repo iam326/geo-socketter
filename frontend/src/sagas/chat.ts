@@ -1,6 +1,7 @@
 import { eventChannel } from 'redux-saga';
 import { all, call, fork, take, put } from 'redux-saga/effects';
 import { actions } from '../actions/chat';
+import { locationActions } from '../actions/location';
 
 function getWebSocketUri() {
   const uri = process.env.REACT_APP_WEB_SOCKET_URI;
@@ -55,9 +56,22 @@ function* write(ws: WebSocket) {
   }
 }
 
-function* handleIO(socket: WebSocket) {
-  yield fork(read, socket);
-  yield fork(write, socket);
+function* writeLocation(ws: WebSocket) {
+  while (true) {
+    const { payload } = yield take(locationActions.sendLocation);
+    yield put(locationActions.sendLocationActions.started(payload));
+    ws.send(JSON.stringify({
+      message: 'sendlocation',
+      data: payload
+    }));
+    yield put(locationActions.sendLocationActions.done({params: payload}));
+  }
+}
+
+function* handleIO(ws: WebSocket) {
+  yield fork(read, ws);
+  yield fork(write, ws);
+  yield fork(writeLocation, ws);
 }
 
 function* watchOnSocket() {

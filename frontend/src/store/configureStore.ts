@@ -11,8 +11,14 @@ export interface ChatState {
   messages: Message[]
 }
 
+export interface LocationState {
+  status: string;
+  location: number;
+}
+
 export interface RootState {
   chat: ChatState;
+  location: LocationState;
 }
 
 export default function configureStore(initial_state?: any) {
