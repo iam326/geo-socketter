@@ -1,6 +1,6 @@
 import { eventChannel } from 'redux-saga';
 import { all, call, fork, take, put } from 'redux-saga/effects';
-import { actions } from '../actions/chat';
+import { chatActions } from '../actions/chat';
 import { locationActions } from '../actions/location';
 
 function getWebSocketUri() {
@@ -25,7 +25,7 @@ function subscribe(ws: WebSocket) {
     ws.onmessage = event => {
       switch(event.type) {
         case 'message':
-          emit(actions.receiveMessage(event.data));
+          emit(chatActions.receiveMessage(event.data));
           break;
         default:
           console.log(event.type);
@@ -46,13 +46,13 @@ function* read(ws: WebSocket) {
 
 function* write(ws: WebSocket) {
   while (true) {
-    const { payload } = yield take(actions.sendMessage);
-    yield put(actions.sendMessageActions.started(payload));
+    const { payload } = yield take(chatActions.sendMessage);
+    yield put(chatActions.sendMessageActions.started(payload));
     ws.send(JSON.stringify({
       message: 'sendmessage',
       data: payload
     }));
-    yield put(actions.sendMessageActions.done({params: payload}));
+    yield put(chatActions.sendMessageActions.done({params: payload}));
   }
 }
 

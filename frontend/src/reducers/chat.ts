@@ -1,7 +1,7 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers';
 
 import { ChatState } from '../store/configureStore';
-import { actions } from '../actions/chat';
+import { chatActions } from '../actions/chat';
 import { Message } from '../types';
 
 const initialState: ChatState = {
@@ -21,12 +21,12 @@ const initialState: ChatState = {
 };
 
 const chatReducer = reducerWithInitialState(initialState)
-  .case(actions.sendMessageActions.started, state => {
+  .case(chatActions.sendMessageActions.started, state => {
     return Object.assign({}, state, {
       status: 'REQUEST'
     });
   })
-  .case(actions.sendMessageActions.done, (state, action) => {
+  .case(chatActions.sendMessageActions.done, (state, action) => {
     const message: Message = {
       value: action.params,
       direction: 'USER',
@@ -37,11 +37,11 @@ const chatReducer = reducerWithInitialState(initialState)
       messages: state.messages.concat(message)
     });
   })
-  .case(actions.sendMessageActions.failed, state => {
+  .case(chatActions.sendMessageActions.failed, state => {
     alert('error!');
     return state;
   })
-  .case(actions.receiveMessage, (state, payload) => {
+  .case(chatActions.receiveMessage, (state, payload) => {
     const message: Message = {
       value: payload,
       direction: 'FRIEND',
