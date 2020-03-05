@@ -17,8 +17,8 @@ import (
 
 // PostData ...
 type PostData struct {
-	Message string `json:"message"`
-	Data    string `data:"message"`
+	Message string      `json:"message"`
+	Data    json.Number `data:"message"`
 }
 
 // Connection ...
