@@ -15,16 +15,22 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
+// Geolocation ...
+type Geolocation struct {
+	Latitude  json.Number `json:"lat"`
+	Longitude json.Number `json:"lon"`
+}
+
 // ReceiveData ...
 type ReceiveData struct {
 	Message string      `json:"message"`
-	Data    json.Number `data:"message"`
+	Data    Geolocation `data:"message"`
 }
 
 // PostData ...
 type PostData struct {
 	Type string      `json:"type"`
-	Data json.Number `json:"data"`
+	Data Geolocation `json:"data"`
 }
 
 // Connection ...

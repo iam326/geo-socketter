@@ -5,7 +5,10 @@ import { locationActions } from '../actions/location';
 
 const initialState: LocationState = {
   status: '',
-  location: 0
+  location: {
+    lat: 0,
+    lon: 0
+  }
 };
 
 const locationReducer = reducerWithInitialState(initialState)
@@ -20,7 +23,6 @@ const locationReducer = reducerWithInitialState(initialState)
     return state;
   })
   .case(locationActions.receiveLocation, (state, payload) => {
-    console.log(payload);
     return Object.assign({}, state, {
       location: payload
     })
