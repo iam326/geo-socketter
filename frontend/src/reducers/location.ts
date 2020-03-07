@@ -20,6 +20,7 @@ const locationReducer = reducerWithInitialState(initialState)
     return state;
   })
   .case(locationActions.receiveLocation, (state, payload) => {
+    console.log(payload);
     return Object.assign({}, state, {
       location: payload
     })

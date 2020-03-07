@@ -23,12 +23,16 @@ function connect() {
 function subscribe(ws: WebSocket) {
   return eventChannel(emit => {
     ws.onmessage = event => {
-      switch(event.type) {
+      const response = JSON.parse(event.data);
+      switch(response.type) {
         case 'message':
-          emit(chatActions.receiveMessage(event.data));
+          emit(chatActions.receiveMessage(response.data));
+          break;
+        case 'location':
+          emit(locationActions.receiveLocation(response.data));
           break;
         default:
-          console.log(event.type);
+          console.warn(response.type);
           break;
       }
     }
