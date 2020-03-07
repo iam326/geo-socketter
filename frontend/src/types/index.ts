@@ -5,3 +5,8 @@ export interface Message {
   direction: Direction;
   timestamp: number;
 }
+
+export type Geolocation = {
+  lat: number,
+  lon: number
+}

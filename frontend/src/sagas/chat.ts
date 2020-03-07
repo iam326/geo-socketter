@@ -1,6 +1,7 @@
 import { eventChannel } from 'redux-saga';
 import { all, call, fork, take, put } from 'redux-saga/effects';
-import { actions } from '../actions/chat';
+import { chatActions } from '../actions/chat';
+import { locationActions } from '../actions/location';
 
 function getWebSocketUri() {
   const uri = process.env.REACT_APP_WEB_SOCKET_URI;
@@ -22,12 +23,16 @@ function connect() {
 function subscribe(ws: WebSocket) {
   return eventChannel(emit => {
     ws.onmessage = event => {
-      switch(event.type) {
+      const response = JSON.parse(event.data);
+      switch(response.type) {
         case 'message':
-          emit(actions.receiveMessage(event.data));
+          emit(chatActions.receiveMessage(response.data));
+          break;
+        case 'location':
+          emit(locationActions.receiveLocation(response.data));
           break;
         default:
-          console.log(event.type);
+          console.warn(response.type);
           break;
       }
     }
@@ -45,19 +50,32 @@ function* read(ws: WebSocket) {
 
 function* write(ws: WebSocket) {
   while (true) {
-    const { payload } = yield take(actions.sendMessage);
-    yield put(actions.sendMessageActions.started(payload));
+    const { payload } = yield take(chatActions.sendMessage);
+    yield put(chatActions.sendMessageActions.started(payload));
     ws.send(JSON.stringify({
       message: 'sendmessage',
       data: payload
     }));
-    yield put(actions.sendMessageActions.done({params: payload}));
+    yield put(chatActions.sendMessageActions.done({params: payload}));
   }
 }
 
-function* handleIO(socket: WebSocket) {
-  yield fork(read, socket);
-  yield fork(write, socket);
+function* writeLocation(ws: WebSocket) {
+  while (true) {
+    const { payload } = yield take(locationActions.sendLocation);
+    yield put(locationActions.sendLocationActions.started(payload));
+    ws.send(JSON.stringify({
+      message: 'sendlocation',
+      data: payload
+    }));
+    yield put(locationActions.sendLocationActions.done({params: payload}));
+  }
+}
+
+function* handleIO(ws: WebSocket) {
+  yield fork(read, ws);
+  yield fork(write, ws);
+  yield fork(writeLocation, ws);
 }
 
 function* watchOnSocket() {

@@ -15,16 +15,22 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
+// Geolocation ...
+type Geolocation struct {
+	Latitude  json.Number `json:"lat"`
+	Longitude json.Number `json:"lon"`
+}
+
 // ReceiveData ...
 type ReceiveData struct {
-	Message string `json:"message"`
-	Data    string `data:"message"`
+	Message string      `json:"message"`
+	Data    Geolocation `data:"message"`
 }
 
 // PostData ...
 type PostData struct {
-	Type string `json:"type"`
-	Data string `json:"data"`
+	Type string      `json:"type"`
+	Data Geolocation `json:"data"`
 }
 
 // Connection ...
@@ -85,7 +91,7 @@ func handler(ctx context.Context, request events.APIGatewayWebsocketProxyRequest
 	}
 
 	postData := PostData{
-		Type: "message",
+		Type: "location",
 		Data: receiveData.Data,
 	}
 
@@ -99,7 +105,8 @@ func handler(ctx context.Context, request events.APIGatewayWebsocketProxyRequest
 
 	for _, conn := range connections {
 		connectionID := conn.ConnectionID
-		if request.RequestContext.ConnectionID != connectionID {
+		// ひとまず自分にだけ送信する
+		if request.RequestContext.ConnectionID == connectionID {
 			svc.PostToConnection(&apigatewaymanagementapi.PostToConnectionInput{
 				ConnectionId: &connectionID,
 				Data:         jsonBytes,
@@ -108,7 +115,7 @@ func handler(ctx context.Context, request events.APIGatewayWebsocketProxyRequest
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body:       "Message Sent.",
+		Body:       "Location Sent.",
 		StatusCode: 200,
 	}, nil
 }
