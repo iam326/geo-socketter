@@ -15,10 +15,16 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-// PostData ...
-type PostData struct {
+// ReceiveData ...
+type ReceiveData struct {
 	Message string      `json:"message"`
 	Data    json.Number `data:"message"`
+}
+
+// PostData ...
+type PostData struct {
+	Type string      `json:"type"`
+	Data json.Number `json:"data"`
 }
 
 // Connection ...
@@ -60,8 +66,8 @@ func handler(ctx context.Context, request events.APIGatewayWebsocketProxyRequest
 	svc := apigatewaymanagementapi.New(sess)
 	svc.Endpoint = fmt.Sprintf("https://%s/%s", request.RequestContext.DomainName, request.RequestContext.Stage)
 
-	var postData PostData
-	err = json.Unmarshal([]byte(request.Body), &postData)
+	var receiveData ReceiveData
+	err = json.Unmarshal([]byte(request.Body), &receiveData)
 	if err != nil {
 		return events.APIGatewayProxyResponse{
 			Body:       fmt.Sprintf("Failed to Unmarshal: %v", string(err.Error())),
@@ -78,13 +84,26 @@ func handler(ctx context.Context, request events.APIGatewayWebsocketProxyRequest
 		}, nil
 	}
 
+	postData := PostData{
+		Type: "location",
+		Data: receiveData.Data,
+	}
+
+	jsonBytes, err := json.Marshal(postData)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			Body:       fmt.Sprintf("Failed to Marshal: %v", string(err.Error())),
+			StatusCode: 500,
+		}, nil
+	}
+
 	for _, conn := range connections {
 		connectionID := conn.ConnectionID
 		// ひとまず自分にだけ送信する
 		if request.RequestContext.ConnectionID == connectionID {
 			svc.PostToConnection(&apigatewaymanagementapi.PostToConnectionInput{
 				ConnectionId: &connectionID,
-				Data:         []byte(postData.Data),
+				Data:         jsonBytes,
 			})
 		}
 	}
