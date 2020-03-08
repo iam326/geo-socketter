@@ -6,8 +6,8 @@ import { locationActions } from '../actions/location';
 const initialState: LocationState = {
   status: '',
   location: {
-    lat: 0,
-    lon: 0
+    lat: 35.681236,
+    lon: 139.767125
   }
 };
 
