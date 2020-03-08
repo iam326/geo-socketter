@@ -23,9 +23,11 @@ const locationReducer = reducerWithInitialState(initialState)
     return state;
   })
   .case(locationActions.receiveLocation, (state, payload) => {
-    return Object.assign({}, state, {
-      location: payload
-    })
+    return state.location.lat !== payload.lat || state.location.lat !== payload.lon
+      ? Object.assign({}, state, {
+          location: payload
+        })
+      : state;
   });
 
 export default locationReducer;

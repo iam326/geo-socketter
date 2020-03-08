@@ -1,7 +1,7 @@
 import React from 'react';
 import 'typeface-roboto';
 import { ActionCreator } from 'redux';
-import { GoogleApiWrapper, Map, Marker } from 'google-maps-react';
+import { GoogleApiWrapper, Map, Marker, MapProps } from 'google-maps-react';
 
 import { Geolocation } from '../types';
 
@@ -18,26 +18,42 @@ if (!googleMapsAPIKey) {
 }
 
 function Maps(props: Props) {
+  const [destination, setDestination] = React.useState<google.maps.LatLng | null>(null);
+
   const getCurrentPosition = () => {
     return new Promise(
-      (
-        resolve: (value?: Position) => void,
+      async (
+        resolve: (value?: Geolocation) => void,
         reject: (reason?: PositionError) => void
       ) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
+        await navigator.geolocation.getCurrentPosition(pos => {
+          const { latitude, longitude } = pos.coords;
+          resolve({
+            lat: latitude,
+            lon: longitude
+          });
+        }, reject);
       }
     );
   }
 
   const sendLocation = async () => {
-    const pos = await getCurrentPosition();
-    const { latitude, longitude } = pos.coords;
-    const location: Geolocation = {
-      lat: latitude,
-      lon: longitude
-    }
+    const location = await getCurrentPosition();
     props.sendLocation(location);
   }
+  //setInterval(sendLocation, 10000);
+  
+  const markDestination = (
+    mapProps?: MapProps,
+    map?: google.maps.Map,
+    event?: any
+  ) => {
+    const location = event.latLng;
+    setDestination(location);
+    if (map) {
+      map.panTo(location);
+    }
+}
 
   return (
     <Map
@@ -46,7 +62,9 @@ function Maps(props: Props) {
         lat: props.location.lat,
         lng: props.location.lon
       }}
-      zoom={15}>
+      zoom={15}
+      onClick={markDestination}
+    >
       <Marker
         name="現在地"
         title="現在地"
@@ -55,6 +73,13 @@ function Maps(props: Props) {
           lng: props.location.lon
         }}
       />
+      {
+        destination
+          ? <Marker
+              position={destination}
+            />
+          : null
+      }
     </Map>
   )
 }
