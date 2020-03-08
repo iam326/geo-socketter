@@ -9,7 +9,7 @@ export default function Room() {
     <div>
       <Header />
       <MapsContainer />
-      <ChatContainer />
+      {/* <ChatContainer /> */}
     </div>
   );
 }

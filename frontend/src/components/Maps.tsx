@@ -1,22 +1,23 @@
 import React from 'react';
 import 'typeface-roboto';
 import { ActionCreator } from 'redux';
-import GoogleMapReact from 'google-map-react';
+import { GoogleApiWrapper, Map, Marker } from 'google-maps-react';
 
 import { Geolocation } from '../types';
 
 interface Props {
+  google: any;
   status: string;
   location: Geolocation;
   sendLocation: ActionCreator<void>;
 }
 
-export default function Maps(props: Props) {
-  const googleMapsAPIKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-  if (!googleMapsAPIKey) {
-    throw "Google Maps API key is not found."
-  }
+const googleMapsAPIKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+if (!googleMapsAPIKey) {
+  throw "Google Maps API key is not found."
+}
 
+function Maps(props: Props) {
   const getCurrentPosition = () => {
     return new Promise(
       (
@@ -39,18 +40,25 @@ export default function Maps(props: Props) {
   }
 
   return (
-    <div style={{ height: '100vh', width: '100%' }}>
-      <GoogleMapReact
-        bootstrapURLKeys={{
-          key: googleMapsAPIKey
-        }}
-        defaultCenter={{
+    <Map
+      google={props.google}
+      initialCenter={{
+        lat: props.location.lat,
+        lng: props.location.lon
+      }}
+      zoom={15}>
+      <Marker
+        name="現在地"
+        title="現在地"
+        position={{
           lat: props.location.lat,
           lng: props.location.lon
         }}
-        defaultZoom={15}
-      >
-      </GoogleMapReact>
-    </div>
+      />
+    </Map>
   )
 }
+
+export default GoogleApiWrapper({
+  apiKey: googleMapsAPIKey
+})(Maps);
