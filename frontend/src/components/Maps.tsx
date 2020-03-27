@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import 'typeface-roboto';
 import { ActionCreator } from 'redux';
 import { GoogleApiWrapper, Map, Marker, MapProps } from 'google-maps-react';
@@ -18,7 +18,11 @@ if (!googleMapsAPIKey) {
 }
 
 function Maps(props: Props) {
-  const [destination, setDestination] = React.useState<google.maps.LatLng | null>(null);
+  const [destination, setDestination] = useState<google.maps.LatLng | null>(null);
+
+  useEffect(() => {
+    runTimer();
+  }, [props]);
 
   const getCurrentPosition = () => {
     return new Promise(
@@ -41,7 +45,18 @@ function Maps(props: Props) {
     const location = await getCurrentPosition();
     props.sendLocation(location);
   }
-  //setInterval(sendLocation, 10000);
+
+  const runTimer = (interval = 10000) => {
+    const timer = () => {
+      setTimeout(async () => {
+        if (props.status === 'DONE') {
+          await sendLocation();
+          timer()
+        }
+      }, interval)
+    }
+    timer()
+  }
   
   const markDestination = (
     mapProps?: MapProps,

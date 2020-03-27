@@ -4,7 +4,7 @@ import { LocationState } from '../store/configureStore';
 import { locationActions } from '../actions/location';
 
 const initialState: LocationState = {
-  status: '',
+  status: 'DONE',
   location: {
     lat: 35.681236,
     lon: 139.767125
@@ -13,14 +13,20 @@ const initialState: LocationState = {
 
 const locationReducer = reducerWithInitialState(initialState)
   .case(locationActions.sendLocationActions.started, state => {
-    return state;
+    return Object.assign({}, state, {
+      status: 'STARTED'
+    });
   })
   .case(locationActions.sendLocationActions.done, state => {
-    return state;
+    return Object.assign({}, state, {
+      status: 'DONE'
+    });
   })
   .case(locationActions.sendLocationActions.failed, state => {
     alert('error!');
-    return state;
+    return Object.assign({}, state, {
+      status: 'FAILED'
+    });
   })
   .case(locationActions.receiveLocation, (state, payload) => {
     return state.location.lat !== payload.lat || state.location.lat !== payload.lon
