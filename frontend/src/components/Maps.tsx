@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import 'typeface-roboto';
 import { ActionCreator } from 'redux';
 import { GoogleApiWrapper, Map, Marker, MapProps } from 'google-maps-react';
@@ -12,19 +12,40 @@ interface Props {
   sendLocation: ActionCreator<void>;
 }
 
+interface State {
+  destination: google.maps.LatLng | null;
+}
+
 const googleMapsAPIKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 if (!googleMapsAPIKey) {
   throw "Google Maps API key is not found."
 }
 
-function Maps(props: Props) {
-  const [destination, setDestination] = useState<google.maps.LatLng | null>(null);
+class Maps extends React.Component<Props, State> {
 
-  useEffect(() => {
-    runTimer();
-  }, [props]);
+  timer = setInterval(() => {
+    this.sendLocation();
+  }, 10000);
 
-  const getCurrentPosition = () => {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      destination: null
+    };
+    this.getCurrentPosition = this.getCurrentPosition.bind(this);
+    this.sendLocation = this.sendLocation.bind(this);
+    this.markDestination = this.markDestination.bind(this);
+  }
+
+  async componentDidMount() {
+    await this.sendLocation();
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timer);
+  }
+
+  getCurrentPosition() {
     return new Promise(
       async (
         resolve: (value?: Geolocation) => void,
@@ -41,62 +62,54 @@ function Maps(props: Props) {
     );
   }
 
-  const sendLocation = async () => {
-    const location = await getCurrentPosition();
-    props.sendLocation(location);
-  }
-
-  const runTimer = (interval = 10000) => {
-    const timer = () => {
-      setTimeout(async () => {
-        if (props.status === 'DONE') {
-          await sendLocation();
-          timer()
-        }
-      }, interval)
-    }
-    timer()
+  async sendLocation() {
+    const location = await this.getCurrentPosition();
+    this.props.sendLocation(location);
   }
   
-  const markDestination = (
+  markDestination(
     mapProps?: MapProps,
     map?: google.maps.Map,
     event?: any
-  ) => {
+  ) {
     const location = event.latLng;
-    setDestination(location);
+    this.setState({
+      destination: location
+    });
     if (map) {
       map.panTo(location);
     }
 }
 
-  return (
-    <Map
-      google={props.google}
-      initialCenter={{
-        lat: props.location.lat,
-        lng: props.location.lon
-      }}
-      zoom={15}
-      onClick={markDestination}
-    >
-      <Marker
-        name="現在地"
-        title="現在地"
-        position={{
-          lat: props.location.lat,
-          lng: props.location.lon
+  render() {
+    return (
+      <Map
+        google={this.props.google}
+        initialCenter={{
+          lat: this.props.location.lat,
+          lng: this.props.location.lon
         }}
-      />
-      {
-        destination
-          ? <Marker
-              position={destination}
-            />
-          : null
-      }
-    </Map>
-  )
+        zoom={15}
+        onClick={this.markDestination}
+      >
+        <Marker
+          name="現在地"
+          title="現在地"
+          position={{
+            lat: this.props.location.lat,
+            lng: this.props.location.lon
+          }}
+        />
+        {
+          this.state.destination
+            ? <Marker
+                position={this.state.destination}
+              />
+            : null
+        }
+      </Map>
+    )
+  }
 }
 
 export default GoogleApiWrapper({
