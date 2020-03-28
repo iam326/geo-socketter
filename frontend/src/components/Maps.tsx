@@ -14,6 +14,7 @@ interface Props {
 
 interface State {
   destination: google.maps.LatLng | null;
+  myLocation: Geolocation | null;
 }
 
 const googleMapsAPIKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -23,26 +24,35 @@ if (!googleMapsAPIKey) {
 
 class Maps extends React.Component<Props, State> {
 
-  timer = setInterval(() => {
-    this.sendLocation();
+  timer = setInterval(async () => {
+    await this.displayLocation();
   }, 10000);
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      destination: null
+      destination: null,
+      myLocation: null
     };
+    this.displayLocation = this.displayLocation.bind(this);
     this.getCurrentPosition = this.getCurrentPosition.bind(this);
-    this.sendLocation = this.sendLocation.bind(this);
     this.markDestination = this.markDestination.bind(this);
   }
 
   async componentDidMount() {
-    await this.sendLocation();
+    await this.displayLocation();
   }
 
   componentWillUnmount() {
     clearInterval(this.timer);
+  }
+
+  async displayLocation() {
+    const location = await this.getCurrentPosition();
+    this.props.sendLocation(location);
+    this.setState({
+      myLocation: location
+    });
   }
 
   getCurrentPosition() {
@@ -51,7 +61,7 @@ class Maps extends React.Component<Props, State> {
         resolve: (value?: Geolocation) => void,
         reject: (reason?: PositionError) => void
       ) => {
-        await navigator.geolocation.getCurrentPosition(pos => {
+        navigator.geolocation.getCurrentPosition(pos => {
           const { latitude, longitude } = pos.coords;
           resolve({
             lat: latitude,
@@ -60,11 +70,6 @@ class Maps extends React.Component<Props, State> {
         }, reject);
       }
     );
-  }
-
-  async sendLocation() {
-    const location = await this.getCurrentPosition();
-    this.props.sendLocation(location);
   }
   
   markDestination(
@@ -93,13 +98,25 @@ class Maps extends React.Component<Props, State> {
         onClick={this.markDestination}
       >
         <Marker
-          name="現在地"
-          title="現在地"
+          name="相手の現在地"
+          title="相手の現在地"
           position={{
             lat: this.props.location.lat,
             lng: this.props.location.lon
           }}
         />
+        {
+          this.state.myLocation
+          ? <Marker
+              name="自分の現在地"
+              title="自分の現在地"
+              position={{
+                lat: this.state.myLocation.lat,
+                lng: this.state.myLocation.lon
+              }}
+            />
+          : null
+        }
         {
           this.state.destination
             ? <Marker
