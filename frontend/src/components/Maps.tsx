@@ -104,6 +104,10 @@ class Maps extends React.Component<Props, State> {
             lat: this.props.location.lat,
             lng: this.props.location.lon
           }}
+          icon={{
+            url: `${process.env.PUBLIC_URL}/cat.png`,
+            scaledSize: new google.maps.Size(48, 48)
+          }}
         />
         {
           this.state.myLocation
@@ -113,6 +117,10 @@ class Maps extends React.Component<Props, State> {
               position={{
                 lat: this.state.myLocation.lat,
                 lng: this.state.myLocation.lon
+              }}
+              icon={{
+                url: `${process.env.PUBLIC_URL}/dog.png`,
+                scaledSize: new google.maps.Size(48, 48)
               }}
             />
           : null
