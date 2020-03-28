@@ -12,6 +12,9 @@ interface Props {
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    root: {
+      marginBottom: '57px'
+    },
     list: {
       marginTop: '8px'
     }
@@ -22,7 +25,7 @@ export default function MessageList(props: Props) {
   const classes = useStyles();
 
   return (
-    <div>
+    <div className={classes.root}>
       <List className={classes.list}>
         {
           props.messages.map((msg: Message, i: number) => (

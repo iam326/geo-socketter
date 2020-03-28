@@ -10,13 +10,15 @@ interface Props {
   messages: Message[];
   sendMessage: ActionCreator<void>;
   sendLocation: ActionCreator<void>;
+  toggleDrawer: () => void;
 }
 
 const useStyles = makeStyles(() =>
   createStyles({
     root: {
       backgroundColor: '#ccc',
-      height: '400px'
+      height: '400px',
+      maxHeight: '400px'
     }
   }),
 );
@@ -31,6 +33,7 @@ export default function Chat(props: Props) {
       <SubmitArea 
         status={props.status}
         sendMessage={props.sendMessage}
+        toggleDrawer={props.toggleDrawer}
       />
     </div>
   );

@@ -19,16 +19,21 @@ interface DispatchToProps {
   sendLocation: ActionCreator<void>;
 }
 
-export type ChatProps = StateToProps & DispatchToProps;
+interface BaseProps {
+  toggleDrawer: () => void;
+}
+
+export type ChatProps = BaseProps & StateToProps & DispatchToProps;
 
 function ChatContainer(props: ChatProps) {
   const { status, messages, sendMessage, sendLocation } = props;
   return (
-    <Chat 
+    <Chat
       status={status}
       messages={messages}
       sendMessage={sendMessage}
       sendLocation={sendLocation}
+      toggleDrawer={props.toggleDrawer}
     />
   );
 }
