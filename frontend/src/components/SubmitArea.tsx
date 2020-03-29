@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ActionCreator } from 'redux';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import 'typeface-roboto';
@@ -33,11 +33,18 @@ interface Props {
   status: string;
   sendMessage: ActionCreator<void>;
   toggleDrawer: () => void;
+  scrollToBottom: () => void;
 }
 export default function SubmitArea(props: Props) {
   const classes = useStyles();
   const [message, setMessage] = React.useState('');
   const [direction, setDirection] = React.useState('up');
+
+  useEffect(() => {
+    if (props.status === 'SEND_MESSAGE_DONE') {
+      props.scrollToBottom();
+    }
+  }, [props.status])
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
@@ -59,6 +66,7 @@ export default function SubmitArea(props: Props) {
   const handleExpandClick = () => {
     setDirection(direction === 'up' ? 'down' : 'up');
     props.toggleDrawer();
+    props.scrollToBottom();
   };
 
   return (
@@ -95,7 +103,7 @@ export default function SubmitArea(props: Props) {
            onClick={handleClick}
           >
             {
-              props.status === 'REQUEST'
+              props.status === 'SEND_MESSAGE_STARTED'
                 ? <SyncIcon />
                 : <SendIcon />
             }

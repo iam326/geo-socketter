@@ -25,15 +25,25 @@ const useStyles = makeStyles(() =>
 
 export default function Chat(props: Props) {
   const classes = useStyles();
+  const messagesEndRef = React.createRef<HTMLDivElement>()
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
   return (
     <div className={classes.root}>
       <MessageList 
         messages={props.messages}
       />
+      <div ref={messagesEndRef}></div>
       <SubmitArea 
         status={props.status}
         sendMessage={props.sendMessage}
         toggleDrawer={props.toggleDrawer}
+        scrollToBottom={scrollToBottom}
       />
     </div>
   );

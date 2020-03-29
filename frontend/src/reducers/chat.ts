@@ -5,7 +5,7 @@ import { chatActions } from '../actions/chat';
 import { Message } from '../types';
 
 const initialState: ChatState = {
-  status: 'NONE',
+  status: 'SEND_MESSAGE_DONE',
   messages: [
     {
       value: 'こんにちは、つよぽんさん。',
@@ -23,7 +23,7 @@ const initialState: ChatState = {
 const chatReducer = reducerWithInitialState(initialState)
   .case(chatActions.sendMessageActions.started, state => {
     return Object.assign({}, state, {
-      status: 'REQUEST'
+      status: 'SEND_MESSAGE_STARTED'
     });
   })
   .case(chatActions.sendMessageActions.done, (state, action) => {
@@ -33,7 +33,7 @@ const chatReducer = reducerWithInitialState(initialState)
       timestamp: 0
     }
     return Object.assign({}, state, {
-      status: '',
+      status: 'SEND_MESSAGE_DONE',
       messages: state.messages.concat(message)
     });
   })
@@ -48,7 +48,7 @@ const chatReducer = reducerWithInitialState(initialState)
       timestamp: 0
     }
     return Object.assign({}, state, {
-      status: '',
+      status: 'SEND_MESSAGE_FAILED',
       messages: state.messages.concat(message)
     })
   });
