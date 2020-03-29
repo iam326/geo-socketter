@@ -50,6 +50,12 @@ export default function SubmitArea(props: Props) {
     }
   };
 
+  const handleFocus = () => {
+    if (direction === 'up') {
+      handleExpandClick();
+    }
+  };
+
   const handleExpandClick = () => {
     setDirection(direction === 'up' ? 'down' : 'up');
     props.toggleDrawer();
@@ -81,6 +87,7 @@ export default function SubmitArea(props: Props) {
               }}
               value={message}
               onChange={handleChange}
+              onFocus={handleFocus}
             />
           </form>
           <IconButton
