@@ -17,8 +17,7 @@ const useStyles = makeStyles(() =>
   createStyles({
     root: {
       backgroundColor: '#ccc',
-      height: '400px',
-      maxHeight: '400px'
+      minHeight: '250px'
     }
   }),
 );
@@ -34,11 +33,13 @@ export default function Chat(props: Props) {
   }
 
   return (
-    <div className={classes.root}>
-      <MessageList 
-        messages={props.messages}
-      />
-      <div ref={messagesEndRef}></div>
+    <div>
+      <div className={classes.root}>
+        <MessageList 
+          messages={props.messages}
+        />
+        <div ref={messagesEndRef}></div>
+      </div>
       <SubmitArea 
         status={props.status}
         sendMessage={props.sendMessage}

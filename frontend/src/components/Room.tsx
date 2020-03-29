@@ -7,13 +7,13 @@ import Header from './Header';
 import MapsContainer from '../containers/MapsContainer';
 import ChatContainer from '../containers/ChatContainer';
 
-const drawerHeight = 260;
+const drawerHeight = 250;
 
 const useStyles = makeStyles(theme => ({
   drawer: {
     height: drawerHeight,
     flexShrink: 0,
-    whiteSpace: 'nowrap',
+    whiteSpace: 'nowrap'
   },
   drawerOpen: {
     height: drawerHeight,
@@ -28,9 +28,9 @@ const useStyles = makeStyles(theme => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
     overflowX: 'hidden',
-    height: theme.spacing(7) + 1,
+    height: 0,
     [theme.breakpoints.up('sm')]: {
-      height: theme.spacing(9) + 1,
+      height: 0,
     },
   }
 }));
