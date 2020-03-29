@@ -18,6 +18,9 @@ const useStyles = makeStyles((theme: Theme) =>
       bottom: 0,
       backgroundColor: '#eee'
     },
+    toolbar: {
+      height: '64px'
+    },
     form: {
       flexGrow: 1,
       marginRight: theme.spacing(1),
@@ -72,7 +75,7 @@ export default function SubmitArea(props: Props) {
   return (
     <div>
       <AppBar position="fixed" elevation={0} className={classes.root}>
-        <Toolbar>
+        <Toolbar className={classes.toolbar}>
           <IconButton
            edge="start"
            onClick={handleExpandClick}
