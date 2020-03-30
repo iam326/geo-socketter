@@ -24,7 +24,7 @@ export type ChatProps = StateToProps & DispatchToProps;
 function ChatContainer(props: ChatProps) {
   const { status, messages, sendMessage, sendLocation } = props;
   return (
-    <Chat 
+    <Chat
       status={status}
       messages={messages}
       sendMessage={sendMessage}
