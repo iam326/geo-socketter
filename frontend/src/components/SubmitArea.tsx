@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ActionCreator } from 'redux';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import 'typeface-roboto';
@@ -42,12 +42,6 @@ export default function SubmitArea(props: Props) {
   const classes = useStyles();
   const [message, setMessage] = React.useState('');
   const [direction, setDirection] = React.useState('up');
-
-  useEffect(() => {
-    if (props.status === 'SEND_MESSAGE_DONE') {
-      props.scrollToBottom();
-    }
-  }, [props.status])
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);

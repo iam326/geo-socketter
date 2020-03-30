@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ActionCreator } from 'redux';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -54,6 +54,12 @@ export default function Chat(props: Props) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const messagesEndRef = React.createRef<HTMLDivElement>()
+
+  useEffect(() => {
+    setTimeout(() => {
+      scrollToBottom();
+    }, 150);
+  }, [props.messages])
 
   const toggleDrawer = () => {
     setOpen(!open);

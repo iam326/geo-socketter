@@ -39,7 +39,9 @@ const chatReducer = reducerWithInitialState(initialState)
   })
   .case(chatActions.sendMessageActions.failed, state => {
     alert('error!');
-    return state;
+    return Object.assign({}, state, {
+      status: 'SEND_MESSAGE_FAILED'
+    });
   })
   .case(chatActions.receiveMessage, (state, payload) => {
     const message: Message = {
@@ -48,7 +50,6 @@ const chatReducer = reducerWithInitialState(initialState)
       timestamp: 0
     }
     return Object.assign({}, state, {
-      status: 'SEND_MESSAGE_FAILED',
       messages: state.messages.concat(message)
     })
   });

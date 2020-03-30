@@ -1,5 +1,5 @@
 import { eventChannel } from 'redux-saga';
-import { all, call, fork, take, put, delay } from 'redux-saga/effects';
+import { all, call, fork, take, put } from 'redux-saga/effects';
 import { chatActions } from '../actions/chat';
 import { locationActions } from '../actions/location';
 
@@ -52,7 +52,6 @@ function* write(ws: WebSocket) {
   while (true) {
     const { payload } = yield take(chatActions.sendMessage);
     yield put(chatActions.sendMessageActions.started(payload));
-    yield delay(0.001);
     ws.send(JSON.stringify({
       message: 'sendmessage',
       data: payload
