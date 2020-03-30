@@ -48,11 +48,14 @@ class Maps extends React.Component<Props, State> {
   }
 
   async displayLocation() {
-    const location = await this.getCurrentPosition();
-    this.props.sendLocation(location);
-    this.setState({
-      myLocation: location
-    });
+    try {
+      const location = await this.getCurrentPosition();
+      this.setState({
+        myLocation: location
+      });
+    } catch(err) {
+      console.error(err.message);
+    }
   }
 
   getCurrentPosition() {
@@ -84,7 +87,7 @@ class Maps extends React.Component<Props, State> {
     if (map) {
       map.panTo(location);
     }
-}
+  }
 
   render() {
     return (
@@ -96,6 +99,9 @@ class Maps extends React.Component<Props, State> {
         }}
         zoom={15}
         onClick={this.markDestination}
+        mapTypeControl={false}
+        fullscreenControl={false}
+        streetViewControl={false}
       >
         <Marker
           name="相手の現在地"
