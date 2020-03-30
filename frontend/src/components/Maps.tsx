@@ -30,6 +30,7 @@ class Maps extends React.Component<Props, State> {
 
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer();
+  directionsRenderer2 = new google.maps.DirectionsRenderer();
 
   constructor(props: Props) {
     super(props);
@@ -45,7 +46,6 @@ class Maps extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    this.displayRoute();
     await this.displayLocation();
   }
 
@@ -59,6 +59,7 @@ class Maps extends React.Component<Props, State> {
   ) {
     if (map) {
       this.directionsRenderer.setMap(map);
+      this.directionsRenderer2.setMap(map);
     }
   }
 
@@ -99,19 +100,41 @@ class Maps extends React.Component<Props, State> {
     this.setState({
       destination: location
     });
-    if (map) {
-      map.panTo(location);
+
+    if (this.state.myLocation) {
+      const origin = new google.maps.LatLng(
+        this.state.myLocation.lat,
+        this.state.myLocation.lon
+      );
+      this.displayRoute(
+        this.directionsRenderer,
+        origin,
+        location
+      );
     }
+    const origin = new google.maps.LatLng(
+      this.props.location.lat,
+      this.props.location.lon
+    );
+    this.displayRoute(
+      this.directionsRenderer2,
+      origin,
+      location
+    );
   }
 
-  displayRoute() {
+  displayRoute(
+    directionsRenderer: google.maps.DirectionsRenderer,
+    origin: google.maps.LatLng,
+    destination: google.maps.LatLng
+  ) {
     this.directionsService.route({
-      origin: new google.maps.LatLng(41.8507300, -87.6512600),
-      destination: new google.maps.LatLng(41.8525800, -87.6514100),
+      origin,
+      destination,
       travelMode: google.maps.TravelMode.WALKING,
     }, (result, status) => {
       if (status === google.maps.DirectionsStatus.OK) {
-        this.directionsRenderer.setDirections(result); 
+        directionsRenderer.setDirections(result);
       } else {
         console.error(`error fetching directions ${result}`);
       }
