@@ -28,6 +28,9 @@ class Maps extends React.Component<Props, State> {
     await this.displayLocation();
   }, 10000);
 
+  directionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer();
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -37,14 +40,26 @@ class Maps extends React.Component<Props, State> {
     this.displayLocation = this.displayLocation.bind(this);
     this.getCurrentPosition = this.getCurrentPosition.bind(this);
     this.markDestination = this.markDestination.bind(this);
+    this.mapsOnReady = this.mapsOnReady.bind(this);
+    this.displayRoute = this.displayRoute.bind(this);
   }
 
   async componentDidMount() {
+    this.displayRoute();
     await this.displayLocation();
   }
 
   componentWillUnmount() {
     clearInterval(this.timer);
+  }
+
+  mapsOnReady(
+    mapProps?: MapProps,
+    map?: google.maps.Map
+  ) {
+    if (map) {
+      this.directionsRenderer.setMap(map);
+    }
   }
 
   async displayLocation() {
@@ -89,6 +104,20 @@ class Maps extends React.Component<Props, State> {
     }
   }
 
+  displayRoute() {
+    this.directionsService.route({
+      origin: new google.maps.LatLng(41.8507300, -87.6512600),
+      destination: new google.maps.LatLng(41.8525800, -87.6514100),
+      travelMode: google.maps.TravelMode.WALKING,
+    }, (result, status) => {
+      if (status === google.maps.DirectionsStatus.OK) {
+        this.directionsRenderer.setDirections(result); 
+      } else {
+        console.error(`error fetching directions ${result}`);
+      }
+    });
+  }
+
   render() {
     return (
       <Map
@@ -98,6 +127,7 @@ class Maps extends React.Component<Props, State> {
           lng: this.props.location.lon
         }}
         zoom={15}
+        onReady={this.mapsOnReady}
         onClick={this.markDestination}
         mapTypeControl={false}
         fullscreenControl={false}
