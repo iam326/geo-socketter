@@ -58,7 +58,14 @@ class Maps extends React.Component<Props, State> {
     map?: google.maps.Map
   ) {
     if (map) {
+      const options = {
+        suppressMarkers: true,
+        suppressInfoWindows: true,
+        preserveViewport: true
+      };
+      this.directionsRenderer.setOptions(options);
       this.directionsRenderer.setMap(map);
+      this.directionsRenderer2.setOptions(options);
       this.directionsRenderer2.setMap(map);
     }
   }
