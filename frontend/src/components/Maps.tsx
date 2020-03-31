@@ -1,7 +1,14 @@
 import React from 'react';
 import 'typeface-roboto';
 import { ActionCreator } from 'redux';
-import { GoogleApiWrapper, Map, Marker, MapProps } from 'google-maps-react';
+import {
+  GoogleApiWrapper,
+  Map,
+  Marker,
+  InfoWindow,
+  MapProps,
+  MarkerProps
+} from 'google-maps-react';
 
 import { Geolocation } from '../types';
 
@@ -15,6 +22,9 @@ interface Props {
 interface State {
   destination: google.maps.LatLng | null;
   myLocation: Geolocation | null;
+  selectedPlace: MarkerProps | null;
+  activeMarker: google.maps.Marker;
+  showingInfoWindow: boolean;
 }
 
 const googleMapsAPIKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -36,13 +46,17 @@ class Maps extends React.Component<Props, State> {
     super(props);
     this.state = {
       destination: null,
-      myLocation: null
+      myLocation: null,
+      selectedPlace: null,
+      activeMarker: new google.maps.Marker(),
+      showingInfoWindow: false
     };
     this.displayLocation = this.displayLocation.bind(this);
     this.getCurrentPosition = this.getCurrentPosition.bind(this);
     this.markDestination = this.markDestination.bind(this);
     this.mapsOnReady = this.mapsOnReady.bind(this);
     this.displayRoute = this.displayRoute.bind(this);
+    this.onMarkerClick = this.onMarkerClick.bind(this);
   }
 
   async componentDidMount() {
@@ -148,6 +162,24 @@ class Maps extends React.Component<Props, State> {
     });
   }
 
+  onMarkerClick(
+    props?: MarkerProps,
+    marker?: google.maps.Marker,
+    event?: any
+  ) {
+    if (props && marker) {
+      //if (marker.getTitle() === '自分の現在地') {}
+      const state = { showingInfoWindow: !this.state.showingInfoWindow };
+      if (!this.state.showingInfoWindow) {
+        Object.assign(state, {
+          selectedPlace: props,
+          activeMarker: marker
+        });
+      }
+      this.setState(state);
+    }
+  }
+
   render() {
     return (
       <Map
@@ -174,7 +206,16 @@ class Maps extends React.Component<Props, State> {
             url: `${process.env.PUBLIC_URL}/cat.png`,
             scaledSize: new google.maps.Size(48, 48)
           }}
+          onClick={this.onMarkerClick}
         />
+        <InfoWindow
+          marker={this.state.activeMarker}
+          visible={this.state.showingInfoWindow}
+        >
+          <div>
+            <p>hoge</p>
+          </div>
+        </InfoWindow>
         {
           this.state.myLocation
           ? <Marker
@@ -188,6 +229,7 @@ class Maps extends React.Component<Props, State> {
                 url: `${process.env.PUBLIC_URL}/dog.png`,
                 scaledSize: new google.maps.Size(48, 48)
               }}
+              onClick={this.onMarkerClick}
             />
           : null
         }
