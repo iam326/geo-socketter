@@ -7,7 +7,7 @@ const initialState: LocationState = {
   status: 'DONE',
   location: {
     lat: 35.681236,
-    lon: 139.767125
+    lng: 139.767125
   }
 };
 
@@ -29,7 +29,7 @@ const locationReducer = reducerWithInitialState(initialState)
     });
   })
   .case(locationActions.receiveLocation, (state, payload) => {
-    return state.location.lat !== payload.lat || state.location.lat !== payload.lon
+    return state.location.lat !== payload.lat || state.location.lat !== payload.lng
       ? Object.assign({}, state, {
           location: payload
         })

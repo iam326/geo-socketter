@@ -56,7 +56,7 @@ class Maps extends React.Component<Props, State> {
       showingInfoWindow2: false
     };
     this.displayLocation = this.displayLocation.bind(this);
-    this.getCurrentPosition = this.getCurrentPosition.bind(this);
+    this.getCurrentLocation = this.getCurrentLocation.bind(this);
     this.markDestination = this.markDestination.bind(this);
     this.mapsOnReady = this.mapsOnReady.bind(this);
     this.displayRoute = this.displayRoute.bind(this);
@@ -90,7 +90,7 @@ class Maps extends React.Component<Props, State> {
 
   async displayLocation() {
     try {
-      const location = await this.getCurrentPosition();
+      const location = await this.getCurrentLocation();
       //this.props.sendLocation(location);
       this.setState({
         myLocation: location
@@ -100,7 +100,7 @@ class Maps extends React.Component<Props, State> {
     }
   }
 
-  getCurrentPosition() {
+  getCurrentLocation() {
     return new Promise(
       async (
         resolve: (value?: Geolocation) => void,
@@ -108,10 +108,7 @@ class Maps extends React.Component<Props, State> {
       ) => {
         navigator.geolocation.getCurrentPosition(pos => {
           const { latitude, longitude } = pos.coords;
-          resolve({
-            lat: latitude,
-            lon: longitude
-          });
+          resolve({ lat: latitude, lng: longitude });
         }, reject);
       }
     );
@@ -128,23 +125,21 @@ class Maps extends React.Component<Props, State> {
     });
 
     if (this.state.myLocation) {
-      const origin = new google.maps.LatLng(
-        this.state.myLocation.lat,
-        this.state.myLocation.lon
-      );
       this.displayRoute(
         this.directionsRenderer,
-        origin,
+        new google.maps.LatLng(
+          this.props.location.lat,
+          this.props.location.lng
+        ),
         location
       );
     }
-    const origin = new google.maps.LatLng(
-      this.props.location.lat,
-      this.props.location.lon
-    );
     this.displayRoute(
       this.directionsRenderer2,
-      origin,
+      new google.maps.LatLng(
+        this.props.location.lat,
+        this.props.location.lng
+      ),
       location
     );
   }
@@ -195,7 +190,7 @@ class Maps extends React.Component<Props, State> {
         google={this.props.google}
         initialCenter={{
           lat: this.props.location.lat,
-          lng: this.props.location.lon
+          lng: this.props.location.lng
         }}
         zoom={15}
         onReady={this.mapsOnReady}
@@ -207,10 +202,7 @@ class Maps extends React.Component<Props, State> {
         <Marker
           name="相手の現在地"
           title="相手の現在地"
-          position={{
-            lat: this.props.location.lat,
-            lng: this.props.location.lon
-          }}
+          position={this.props.location}
           icon={{
             url: `${process.env.PUBLIC_URL}/cat.png`,
             scaledSize: new google.maps.Size(48, 48)
@@ -222,10 +214,7 @@ class Maps extends React.Component<Props, State> {
           ? <Marker
               name="自分の現在地"
               title="自分の現在地"
-              position={{
-                lat: this.state.myLocation.lat,
-                lng: this.state.myLocation.lon
-              }}
+              position={this.state.myLocation}
               icon={{
                 url: `${process.env.PUBLIC_URL}/dog.png`,
                 scaledSize: new google.maps.Size(48, 48)
