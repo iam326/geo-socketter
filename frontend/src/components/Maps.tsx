@@ -23,10 +23,10 @@ interface State {
   destination: google.maps.LatLng | null;
   myLocation: Geolocation | null;
   selectedPlace: MarkerProps | null;
-  activeMarker: google.maps.Marker;
-  showingInfoWindow: boolean;
-  activeMarker2: google.maps.Marker;
-  showingInfoWindow2: boolean;
+  myLocationMarker: google.maps.Marker;
+  showingMyInfo: boolean;
+  friendLocationMarker: google.maps.Marker;
+  showingFriendInfo: boolean;
 }
 
 const googleMapsAPIKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -52,10 +52,10 @@ class Maps extends React.Component<Props, State> {
       destination: null,
       myLocation: null,
       selectedPlace: null,
-      activeMarker: new google.maps.Marker(),
-      showingInfoWindow: false,
-      activeMarker2: new google.maps.Marker(),
-      showingInfoWindow2: false
+      myLocationMarker: new google.maps.Marker(),
+      showingMyInfo: false,
+      friendLocationMarker: new google.maps.Marker(),
+      showingFriendInfo: false
     };
     this.displayLocation = this.displayLocation.bind(this);
     this.getCurrentLocation = this.getCurrentLocation.bind(this);
@@ -170,19 +170,19 @@ class Maps extends React.Component<Props, State> {
     event?: any
   ) {
     if (props && marker) {
-      const state = {};
-      if (marker.getTitle() === '自分の現在地') {
-        Object.assign(state, { showingInfoWindow: !this.state.showingInfoWindow });
-        if (!this.state.showingInfoWindow) {
-          Object.assign(state, { activeMarker: marker });
+      const newState = {};
+      if (marker.getTitle() === 'MyLocation') {
+        Object.assign(newState, { showingMyInfo: !this.state.showingMyInfo });
+        if (!this.state.showingMyInfo) {
+          Object.assign(newState, { myLocationMarker: marker });
         }
       } else {
-        Object.assign(state, { showingInfoWindow2: !this.state.showingInfoWindow2 });
-        if (!this.state.showingInfoWindow2) {
-          Object.assign(state, { activeMarker2: marker });
+        Object.assign(newState, { showingFriendInfo: !this.state.showingFriendInfo });
+        if (!this.state.showingFriendInfo) {
+          Object.assign(newState, { friendLocationMarker: marker });
         }
       }
-      this.setState(state);
+      this.setState(newState);
     }
   }
 
@@ -202,8 +202,7 @@ class Maps extends React.Component<Props, State> {
         streetViewControl={false}
       >
         <Marker
-          name="相手の現在地"
-          title="相手の現在地"
+          title="FriendLocation"
           position={this.props.location}
           icon={{
             url: `${process.env.PUBLIC_URL}/cat.png`,
@@ -214,8 +213,7 @@ class Maps extends React.Component<Props, State> {
         {
           this.state.myLocation
           ? <Marker
-              name="自分の現在地"
-              title="自分の現在地"
+              title="MyLocation"
               position={this.state.myLocation}
               icon={{
                 url: `${process.env.PUBLIC_URL}/dog.png`,
@@ -233,19 +231,19 @@ class Maps extends React.Component<Props, State> {
             : null
         }
         <InfoWindow
-          marker={this.state.activeMarker}
-          visible={this.state.showingInfoWindow}
+          marker={this.state.myLocationMarker}
+          visible={this.state.showingMyInfo}
         >
           <div>
-            <p>hoge</p>
+            <p>my info window</p>
           </div>
         </InfoWindow>
         <InfoWindow
-          marker={this.state.activeMarker2}
-          visible={this.state.showingInfoWindow2}
+          marker={this.state.friendLocationMarker}
+          visible={this.state.showingFriendInfo}
         >
           <div>
-            <p>foobar</p>
+            <p>friend info window</p>
           </div>
         </InfoWindow>
       </Map>
