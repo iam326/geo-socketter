@@ -25,6 +25,8 @@ interface State {
   selectedPlace: MarkerProps | null;
   activeMarker: google.maps.Marker;
   showingInfoWindow: boolean;
+  activeMarker2: google.maps.Marker;
+  showingInfoWindow2: boolean;
 }
 
 const googleMapsAPIKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -49,7 +51,9 @@ class Maps extends React.Component<Props, State> {
       myLocation: null,
       selectedPlace: null,
       activeMarker: new google.maps.Marker(),
-      showingInfoWindow: false
+      showingInfoWindow: false,
+      activeMarker2: new google.maps.Marker(),
+      showingInfoWindow2: false
     };
     this.displayLocation = this.displayLocation.bind(this);
     this.getCurrentPosition = this.getCurrentPosition.bind(this);
@@ -87,6 +91,7 @@ class Maps extends React.Component<Props, State> {
   async displayLocation() {
     try {
       const location = await this.getCurrentPosition();
+      //this.props.sendLocation(location);
       this.setState({
         myLocation: location
       });
@@ -168,13 +173,17 @@ class Maps extends React.Component<Props, State> {
     event?: any
   ) {
     if (props && marker) {
-      //if (marker.getTitle() === '自分の現在地') {}
-      const state = { showingInfoWindow: !this.state.showingInfoWindow };
-      if (!this.state.showingInfoWindow) {
-        Object.assign(state, {
-          selectedPlace: props,
-          activeMarker: marker
-        });
+      const state = {};
+      if (marker.getTitle() === '自分の現在地') {
+        Object.assign(state, { showingInfoWindow: !this.state.showingInfoWindow });
+        if (!this.state.showingInfoWindow) {
+          Object.assign(state, { activeMarker: marker });
+        }
+      } else {
+        Object.assign(state, { showingInfoWindow2: !this.state.showingInfoWindow2 });
+        if (!this.state.showingInfoWindow2) {
+          Object.assign(state, { activeMarker2: marker });
+        }
       }
       this.setState(state);
     }
@@ -208,14 +217,6 @@ class Maps extends React.Component<Props, State> {
           }}
           onClick={this.onMarkerClick}
         />
-        <InfoWindow
-          marker={this.state.activeMarker}
-          visible={this.state.showingInfoWindow}
-        >
-          <div>
-            <p>hoge</p>
-          </div>
-        </InfoWindow>
         {
           this.state.myLocation
           ? <Marker
@@ -240,6 +241,22 @@ class Maps extends React.Component<Props, State> {
               />
             : null
         }
+        <InfoWindow
+          marker={this.state.activeMarker}
+          visible={this.state.showingInfoWindow}
+        >
+          <div>
+            <p>hoge</p>
+          </div>
+        </InfoWindow>
+        <InfoWindow
+          marker={this.state.activeMarker2}
+          visible={this.state.showingInfoWindow2}
+        >
+          <div>
+            <p>foobar</p>
+          </div>
+        </InfoWindow>
       </Map>
     )
   }
