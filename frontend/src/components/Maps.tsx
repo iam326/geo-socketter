@@ -40,9 +40,11 @@ class Maps extends React.Component<Props, State> {
     await this.displayLocation();
   }, 10000);
 
-  directionsService = new google.maps.DirectionsService();
-  directionsRenderer = new google.maps.DirectionsRenderer();
-  directionsRenderer2 = new google.maps.DirectionsRenderer();
+  directionsApi = {
+    service: new google.maps.DirectionsService(),
+    myRouteRenderer: new google.maps.DirectionsRenderer(),
+    friendRouteRenderer: new google.maps.DirectionsRenderer()
+  };
 
   constructor(props: Props) {
     super(props);
@@ -81,10 +83,10 @@ class Maps extends React.Component<Props, State> {
         suppressInfoWindows: true,
         preserveViewport: true
       };
-      this.directionsRenderer.setOptions(options);
-      this.directionsRenderer.setMap(map);
-      this.directionsRenderer2.setOptions(options);
-      this.directionsRenderer2.setMap(map);
+      this.directionsApi.myRouteRenderer.setOptions(options);
+      this.directionsApi.myRouteRenderer.setMap(map);
+      this.directionsApi.friendRouteRenderer.setOptions(options);
+      this.directionsApi.friendRouteRenderer.setMap(map);
     }
   }
 
@@ -126,16 +128,16 @@ class Maps extends React.Component<Props, State> {
 
     if (this.state.myLocation) {
       this.displayRoute(
-        this.directionsRenderer,
+        this.directionsApi.myRouteRenderer,
         new google.maps.LatLng(
-          this.props.location.lat,
-          this.props.location.lng
+          this.state.myLocation.lat,
+          this.state.myLocation.lng
         ),
         location
       );
     }
     this.displayRoute(
-      this.directionsRenderer2,
+      this.directionsApi.friendRouteRenderer,
       new google.maps.LatLng(
         this.props.location.lat,
         this.props.location.lng
@@ -149,7 +151,7 @@ class Maps extends React.Component<Props, State> {
     origin: google.maps.LatLng,
     destination: google.maps.LatLng
   ) {
-    this.directionsService.route({
+    this.directionsApi.service.route({
       origin,
       destination,
       travelMode: google.maps.TravelMode.WALKING,
