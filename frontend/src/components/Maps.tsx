@@ -22,11 +22,14 @@ interface Props {
 interface State {
   destination: google.maps.LatLng | null;
   myLocation: Geolocation | null;
-  selectedPlace: MarkerProps | null;
   myLocationMarker: google.maps.Marker;
   showingMyInfo: boolean;
+  distanceFromMyLocationToDestination: string;
+  distanceFromMyLocationToDuration: string;
   friendLocationMarker: google.maps.Marker;
   showingFriendInfo: boolean;
+  distanceFromFriendLocationToDestination: string;
+  distanceFromFriendLocationToDuration: string;
 }
 
 const googleMapsAPIKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -51,17 +54,22 @@ class Maps extends React.Component<Props, State> {
     this.state = {
       destination: null,
       myLocation: null,
-      selectedPlace: null,
       myLocationMarker: new google.maps.Marker(),
       showingMyInfo: false,
+      distanceFromMyLocationToDestination: '',
+      distanceFromMyLocationToDuration: '',
       friendLocationMarker: new google.maps.Marker(),
-      showingFriendInfo: false
+      showingFriendInfo: false,
+      distanceFromFriendLocationToDestination: '',
+      distanceFromFriendLocationToDuration: ''
     };
     this.displayLocation = this.displayLocation.bind(this);
     this.getCurrentLocation = this.getCurrentLocation.bind(this);
+    this.getMyLocationLatLng = this.getMyLocationLatLng.bind(this);
+    this.getFriendLocationLatLng = this.getFriendLocationLatLng.bind(this);
     this.markDestination = this.markDestination.bind(this);
     this.mapsOnReady = this.mapsOnReady.bind(this);
-    this.displayRoute = this.displayRoute.bind(this);
+    this.getDirectionsRoute = this.getDirectionsRoute.bind(this);
     this.onMarkerClick = this.onMarkerClick.bind(this);
   }
 
@@ -102,6 +110,21 @@ class Maps extends React.Component<Props, State> {
     }
   }
 
+  getMyLocationLatLng() {
+    if (!this.state.myLocation) { return null; }
+    return new google.maps.LatLng(
+      this.state.myLocation.lat,
+      this.state.myLocation.lng
+    );
+  }
+
+  getFriendLocationLatLng() {
+    return new google.maps.LatLng(
+      this.props.location.lat,
+      this.props.location.lng
+    );
+  }
+
   getCurrentLocation() {
     return new Promise(
       async (
@@ -127,29 +150,29 @@ class Maps extends React.Component<Props, State> {
     });
 
     if (this.state.myLocation) {
-      this.displayRoute(
-        this.directionsApi.myRouteRenderer,
-        new google.maps.LatLng(
-          this.state.myLocation.lat,
-          this.state.myLocation.lng
-        ),
-        location
+      this.getDirectionsRoute(
+        this.getMyLocationLatLng() as google.maps.LatLng,
+        location,
+        result => {
+          this.directionsApi.myRouteRenderer.setDirections(result);
+        }
       );
     }
-    this.displayRoute(
-      this.directionsApi.friendRouteRenderer,
-      new google.maps.LatLng(
-        this.props.location.lat,
-        this.props.location.lng
-      ),
-      location
+    this.getDirectionsRoute(
+      this.getFriendLocationLatLng(),
+      location,
+      result => {
+        this.directionsApi.friendRouteRenderer.setDirections(result);
+      }
     );
   }
 
-  displayRoute(
-    directionsRenderer: google.maps.DirectionsRenderer,
+  getDirectionsRoute(
     origin: google.maps.LatLng,
-    destination: google.maps.LatLng
+    destination: google.maps.LatLng,
+    callback: (
+      result: google.maps.DirectionsResult
+    ) => void
   ) {
     this.directionsApi.service.route({
       origin,
@@ -157,7 +180,7 @@ class Maps extends React.Component<Props, State> {
       travelMode: google.maps.TravelMode.WALKING,
     }, (result, status) => {
       if (status === google.maps.DirectionsStatus.OK) {
-        directionsRenderer.setDirections(result);
+        callback(result);
       } else {
         console.error(`error fetching directions ${result}`);
       }
@@ -169,29 +192,47 @@ class Maps extends React.Component<Props, State> {
     marker?: google.maps.Marker,
     event?: any
   ) {
-    if (props && marker) {
-      const newState = {};
-      let closeInfoWindow: (() => void) | null = null;
-      if (marker.getTitle() === 'MyLocation') {
-        Object.assign(newState, { showingMyInfo: !this.state.showingMyInfo });
-        if (!this.state.showingMyInfo) {
-          Object.assign(newState, { myLocationMarker: marker });
-          closeInfoWindow = () => this.setState({ showingMyInfo: false });
-        }
-      } else {
-        Object.assign(newState, { showingFriendInfo: !this.state.showingFriendInfo });
-        if (!this.state.showingFriendInfo) {
-          Object.assign(newState, { friendLocationMarker: marker });
-          closeInfoWindow = () => this.setState({ showingFriendInfo: false });
-        }
-      }
-
-      this.setState(newState);
-
-      if (closeInfoWindow !== null) {
-        setTimeout(closeInfoWindow, 5000);
-      }
+    if (!props || !marker || !this.state.destination) { 
+      return;
     }
+
+    let fromLocation: google.maps.LatLng;
+    let getDirectionsRouteCallback: ((result: google.maps.DirectionsResult) => void);
+    if (marker.getTitle() === 'MyLocation') {
+      if (this.state.showingMyInfo) { return; }
+      fromLocation = this.getMyLocationLatLng() as google.maps.LatLng;
+      getDirectionsRouteCallback = result => {
+        const dest = result.routes[0].legs[0].distance.text;
+        const duration = result.routes[0].legs[0].duration.text;
+        this.setState({
+          myLocationMarker: marker,
+          showingMyInfo: true,
+          distanceFromMyLocationToDestination: dest,
+          distanceFromMyLocationToDuration: duration
+        });
+        setTimeout(() => this.setState({ showingMyInfo: false }), 5000);
+      };
+    } else {
+      if (this.state.showingFriendInfo) { return; }
+      fromLocation = this.getFriendLocationLatLng();
+      getDirectionsRouteCallback = result => {
+        const dest = result.routes[0].legs[0].distance.text;
+        const duration = result.routes[0].legs[0].duration.text;
+        this.setState({
+          friendLocationMarker: marker,
+          showingFriendInfo: true,
+          distanceFromFriendLocationToDestination: dest,
+          distanceFromFriendLocationToDuration: duration
+        });
+        setTimeout(() => this.setState({ showingFriendInfo: false }), 5000);
+      };
+    }
+
+    this.getDirectionsRoute(
+      fromLocation,
+      this.state.destination,
+      getDirectionsRouteCallback
+    );
   }
 
   render() {
@@ -243,7 +284,8 @@ class Maps extends React.Component<Props, State> {
           visible={this.state.showingMyInfo}
         >
           <div>
-            <p>my info window</p>
+            <div>{this.state.distanceFromMyLocationToDestination}</div>
+            <div>{this.state.distanceFromMyLocationToDuration}</div>
           </div>
         </InfoWindow>
         <InfoWindow
@@ -251,7 +293,8 @@ class Maps extends React.Component<Props, State> {
           visible={this.state.showingFriendInfo}
         >
           <div>
-            <p>friend info window</p>
+            <div>{this.state.distanceFromFriendLocationToDestination}</div>
+            <div>{this.state.distanceFromFriendLocationToDuration}</div>
           </div>
         </InfoWindow>
       </Map>
