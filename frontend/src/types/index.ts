@@ -8,5 +8,5 @@ export interface Message {
 
 export type Geolocation = {
   lat: number,
-  lon: number
+  lng: number
 }
