@@ -171,18 +171,26 @@ class Maps extends React.Component<Props, State> {
   ) {
     if (props && marker) {
       const newState = {};
+      let closeInfoWindow: (() => void) | null = null;
       if (marker.getTitle() === 'MyLocation') {
         Object.assign(newState, { showingMyInfo: !this.state.showingMyInfo });
         if (!this.state.showingMyInfo) {
           Object.assign(newState, { myLocationMarker: marker });
+          closeInfoWindow = () => this.setState({ showingMyInfo: false });
         }
       } else {
         Object.assign(newState, { showingFriendInfo: !this.state.showingFriendInfo });
         if (!this.state.showingFriendInfo) {
           Object.assign(newState, { friendLocationMarker: marker });
+          closeInfoWindow = () => this.setState({ showingFriendInfo: false });
         }
       }
+
       this.setState(newState);
+
+      if (closeInfoWindow !== null) {
+        setTimeout(closeInfoWindow, 5000);
+      }
     }
   }
 
