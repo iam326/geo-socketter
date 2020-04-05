@@ -8,6 +8,8 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
@@ -56,6 +58,7 @@ export default function SignIn(props: Props) {
   const classes = useStyles();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [open, setOpen] = React.useState(false);
 
   const onChangeUsername = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -86,8 +89,13 @@ export default function SignIn(props: Props) {
         props.onStateChange('signedIn', user);
       }
     } catch (e) {
+      setOpen(true);
       console.warn(e);
     }
+  };
+  
+  const handleClose = (_: React.SyntheticEvent<Element, Event>) => {
+    setOpen(false);
   };
 
   return (
@@ -161,6 +169,21 @@ export default function SignIn(props: Props) {
       <Box mt={8}>
         <Copyright />
       </Box>
+      <Snackbar
+        open={open}
+        autoHideDuration={5000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <MuiAlert
+          elevation={6}
+          variant="filled"
+          onClose={handleClose}
+          severity="error"
+        >
+          Either the user ID or password is invalid.
+        </MuiAlert>
+      </Snackbar>
     </Container>
   )
 }
