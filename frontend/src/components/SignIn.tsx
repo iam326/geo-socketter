@@ -14,6 +14,8 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { Auth } from 'aws-amplify';
 import { CognitoUser } from 'amazon-cognito-identity-js';
 
@@ -39,6 +41,10 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  }
 }));
 
 function Copyright() {
@@ -59,6 +65,7 @@ export default function SignIn(props: Props) {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [open, setOpen] = React.useState(false);
+  const [loadingState, setLoadingState] = React.useState(false);
 
   const onChangeUsername = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -76,6 +83,7 @@ export default function SignIn(props: Props) {
       return;
     }
     try {
+      setLoadingState(true);
       let user = await Auth.signIn(username, password);
       if (user.challengeName === 'NEW_PASSWORD_REQUIRED') {
         const { email, phone_number } = user.challengeParam.userAttributes;
@@ -92,6 +100,7 @@ export default function SignIn(props: Props) {
       setOpen(true);
       console.warn(e);
     }
+    setLoadingState(false);
   };
   
   const handleClose = (_: React.SyntheticEvent<Element, Event>) => {
@@ -184,6 +193,12 @@ export default function SignIn(props: Props) {
           Either the user ID or password is invalid.
         </MuiAlert>
       </Snackbar>
+      <Backdrop
+        className={classes.backdrop}
+        open={loadingState}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Container>
   )
 }
