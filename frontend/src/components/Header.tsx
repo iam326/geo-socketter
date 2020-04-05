@@ -6,6 +6,8 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import Button from '@material-ui/core/Button';
+import { Auth } from 'aws-amplify';
 
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
@@ -23,6 +25,9 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Header() {
   const classes = useStyles();
+  const onClick = async (_: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    await Auth.signOut();
+  }
 
   return (
     <div className={classes.root}>
@@ -34,6 +39,12 @@ export default function Header() {
           <Typography variant="h6" className={classes.title}>
             つよぽん
           </Typography>
+          <Button
+            color="inherit"
+            onClick={onClick}
+          >
+            Sign Out
+          </Button>
         </Toolbar>
       </AppBar>
     </div>
