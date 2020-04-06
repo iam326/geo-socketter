@@ -9,6 +9,11 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import Button from '@material-ui/core/Button';
 import { Auth } from 'aws-amplify';
 
+interface Props {
+  title: string;
+  onClickBack?: () => void;
+}
+
 const useStyles = makeStyles((theme: Theme) => 
   createStyles({
     root: {
@@ -23,9 +28,9 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function Header() {
+export default function Header(props: Props) {
   const classes = useStyles();
-  const onClick = async (_: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const signOut = async (_: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     await Auth.signOut();
   }
 
@@ -33,15 +38,22 @@ export default function Header() {
     <div className={classes.root}>
       <AppBar position="static" elevation={0}>
         <Toolbar>
-          <IconButton edge="start" className={classes.backButton}>
-            <ArrowBackIosIcon />
-          </IconButton>
+          {
+            props.onClickBack &&
+              <IconButton
+                edge="start"
+                className={classes.backButton}
+                onClick={props.onClickBack}
+              >
+                <ArrowBackIosIcon />
+              </IconButton>
+          }
           <Typography variant="h6" className={classes.title}>
-            つよぽん
+            {props.title}
           </Typography>
           <Button
             color="inherit"
-            onClick={onClick}
+            onClick={signOut}
           >
             Sign Out
           </Button>
