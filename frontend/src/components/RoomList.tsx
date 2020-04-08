@@ -15,6 +15,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { v4 as uuidv4 } from 'uuid';
+import { API } from 'aws-amplify';
 
 import Header from './Header';
 
@@ -55,13 +57,32 @@ function RoomItem(props: Props) {
 export default function RoomList() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
+  const [name, setName] = React.useState('');
 
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  const handleChangeName = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setName(event.currentTarget.value);
+  };
+
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleCreate = async () => {
+    try {
+      await API.post('GeoSocketterApi', '/rooms', {
+        body: {
+          roomId: uuidv4(),
+          roomName: name,
+          createdAt: Date.now()
+        }
+      });
+    } catch (err) {
+      console.warn(err);
+    }
   };
 
   return (
@@ -93,13 +114,15 @@ export default function RoomList() {
             label="Room Name"
             type="text"
             fullWidth
+            value={name}
+            onChange={handleChangeName}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleCreate} color="primary">
             Create
           </Button>
         </DialogActions>
