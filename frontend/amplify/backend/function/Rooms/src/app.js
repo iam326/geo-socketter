@@ -135,6 +135,34 @@ app.get(path + '/object' + hashKeyPath + sortKeyPath, function(req, res) {
   });
 });
 
+/*****************************************
+ * HTTP Get method for get all object *
+ *****************************************/
+
+app.get(path, function(_, res) {
+  let params = {
+    TableName: tableName,
+    Select: 'ALL_ATTRIBUTES'
+  }
+
+  dynamodb.scan(params,(err, data) => {
+    if(err) {
+      res.statusCode = 500;
+      res.json({error: 'Could not load items: ' + err.message});
+    } else {
+      if (data.Items) {
+        res.json({
+          data: data.Items.map(item => {
+            return item;
+          })
+        });
+      } else {
+        res.json(data) ;
+      }
+    }
+  });
+});
+
 
 /************************************
 * HTTP put method for insert object *

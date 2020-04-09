@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -17,6 +17,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { v4 as uuidv4 } from 'uuid';
 import { API } from 'aws-amplify';
+import moment from 'moment';
 
 import Header from './Header';
 
@@ -56,8 +57,26 @@ function RoomItem(props: Props) {
 
 export default function RoomList() {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
-  const [name, setName] = React.useState('');
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [roomList, setRoomList] = useState<Array<{
+    roomId: string,
+    roomName: string,
+    createdAt: number
+  }>>([]);
+
+  useEffect(() => {
+    getRoomList();
+  }, [])
+
+  const getRoomList = async () => {
+    try {
+      const response = await API.get('GeoSocketterApi', '/rooms', {});
+      setRoomList(response.data);
+    } catch (err) {
+      console.warn(err);
+    }
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -89,9 +108,15 @@ export default function RoomList() {
     <React.Fragment>
       <Header title="Room List" />
       <List className={classes.root}>
-        <RoomItem title="タイトル" subTitle="サブタイトル" />
-        <RoomItem title="タイトル" subTitle="サブタイトル" />
-        <RoomItem title="タイトル" subTitle="サブタイトル" />
+        {
+          roomList.map(room => (
+            <RoomItem
+              key={room.roomId}
+              title={room.roomName}
+              subTitle={moment(room.createdAt).format('LLL')}
+            />
+          ))
+        }
       </List>
       <Fab
         className={classes.fab}

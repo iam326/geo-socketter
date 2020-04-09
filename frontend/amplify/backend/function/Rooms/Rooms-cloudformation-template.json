@@ -71,7 +71,7 @@
 				"Timeout": "25",
 				"Code": {
 					"S3Bucket": "amplify-geo-socketter-dev-211822-deployment",
-					"S3Key": "amplify-builds/Rooms-6e654e625553364d7470-build.zip"
+					"S3Key": "amplify-builds/Rooms-51433833675255354b75-build.zip"
 				}
 			}
 		},
