@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import Avatar from '@material-ui/core/Avatar';
-import ChatIcon from '@material-ui/icons/Chat';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import Button from '@material-ui/core/Button';
@@ -20,6 +15,7 @@ import { API } from 'aws-amplify';
 import moment from 'moment';
 
 import Header from './Header';
+import RoomItem from './RoomItem';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,31 +30,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-interface Props {
-  title: string,
-  subTitle: string
-}
-
-function RoomItem(props: Props) {
-  return (
-    <ListItem button>
-      <ListItemAvatar>
-        <Avatar>
-          <ChatIcon />
-        </Avatar>
-      </ListItemAvatar>
-      <ListItemText
-        primary={props.title}
-        secondary={props.subTitle}
-      />
-    </ListItem>
-  );
-}
-
 export default function RoomList() {
   const classes = useStyles();
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState('');
+  const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [selectRoomId, setSelectRoomId] = useState('');
+  const [newRoomName, setNewRoomName] = useState('');
   const [roomList, setRoomList] = useState<Array<{
     roomId: string,
     roomName: string,
@@ -66,7 +43,9 @@ export default function RoomList() {
   }>>([]);
 
   useEffect(() => {
-    getRoomList();
+    if (roomList.length === 0) {
+      getRoomList();
+    }
   }, [])
 
   const getRoomList = async () => {
@@ -78,22 +57,16 @@ export default function RoomList() {
     }
   };
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  const handleChangeName = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setNewRoomName(event.currentTarget.value);
   };
 
-  const handleChangeName = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setName(event.currentTarget.value);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleCreate = async () => {
+  const handleCreateRoom = async () => {
     const body = {
       roomId: uuidv4(),
-      roomName: name,
+      roomName: newRoomName,
       createdAt: Date.now()
     };
     try {
@@ -102,7 +75,41 @@ export default function RoomList() {
       console.warn(err);
     }
     setRoomList(roomList.concat([body]))
-    handleClose();
+    handleCloseCreateDialog();
+  };
+
+  const handleCloseCreateDialog = () => {
+    setNewRoomName('');
+    setOpenCreateDialog(false);
+  };
+
+  const handleLongTap = (id: string) => {
+    setSelectRoomId(id);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleDeleteRoom = async () => {
+    try {
+      await API.del('GeoSocketterApi', `/rooms/object/${selectRoomId}`, {});
+    } catch (err) {
+      console.warn(err);
+    }
+    const newRoomList = roomList.filter(room => room.roomId !== selectRoomId);
+    setRoomList(newRoomList);
+    handleCloseDeleteDialog();
+  }
+
+  const handleCloseDeleteDialog = () => {
+    setSelectRoomId('');
+    setOpenDeleteDialog(false);
+  };
+
+  const getSelectRoomName = () => {
+    if (selectRoomId === '') {
+      return '';
+    }
+    const room = roomList.find(item => item.roomId === selectRoomId);
+    return room ? room.roomName : '';
   };
 
   return (
@@ -113,8 +120,10 @@ export default function RoomList() {
           roomList.map(room => (
             <RoomItem
               key={room.roomId}
+              id={room.roomId}
               title={room.roomName}
               subTitle={moment(room.createdAt).format('LLL')}
+              onLongTap={handleLongTap}
             />
           ))
         }
@@ -123,14 +132,19 @@ export default function RoomList() {
         className={classes.fab}
         color="primary"
         aria-label="add"
-        onClick={handleClickOpen}
+        onClick={() => setOpenCreateDialog(true)}
       >
         <AddIcon />
       </Fab>
-      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+      <Dialog
+        open={openCreateDialog}
+        onClose={handleCloseCreateDialog}
+        aria-labelledby="form-dialog-title"
+        aria-describedby="form-dialog-description"
+      >
         <DialogTitle id="form-dialog-title">Create a new room</DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText id="form-dialog-description">
             To create a new room, enter the room name here.
           </DialogContentText>
           <TextField
@@ -140,16 +154,37 @@ export default function RoomList() {
             label="Room Name"
             type="text"
             fullWidth
-            value={name}
+            value={newRoomName}
             onChange={handleChangeName}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleCloseCreateDialog} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleCreate} color="primary">
+          <Button onClick={handleCreateRoom} color="primary">
             Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openDeleteDialog}
+        onClose={handleCloseDeleteDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{getSelectRoomName()}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to permanently delete this room ?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteRoom} color="primary" autoFocus>
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
