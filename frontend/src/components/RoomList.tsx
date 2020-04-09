@@ -91,17 +91,18 @@ export default function RoomList() {
   };
 
   const handleCreate = async () => {
+    const body = {
+      roomId: uuidv4(),
+      roomName: name,
+      createdAt: Date.now()
+    };
     try {
-      await API.post('GeoSocketterApi', '/rooms', {
-        body: {
-          roomId: uuidv4(),
-          roomName: name,
-          createdAt: Date.now()
-        }
-      });
+      await API.post('GeoSocketterApi', '/rooms', { body });
     } catch (err) {
       console.warn(err);
     }
+    setRoomList(roomList.concat([body]))
+    handleClose();
   };
 
   return (
