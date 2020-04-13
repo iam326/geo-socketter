@@ -17,6 +17,7 @@
     "aws-amplify-react": "^4.1.4",
     "clsx": "^1.1.0",
     "google-maps-react": "^2.0.2",
+    "moment": "^2.24.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-redux": "^7.2.0",
@@ -27,7 +28,8 @@
     "typeface-roboto": "^0.0.75",
     "typescript": "~3.7.2",
     "typescript-fsa": "^3.0.0",
-    "typescript-fsa-reducers": "^1.2.1"
+    "typescript-fsa-reducers": "^1.2.1",
+    "uuid": "^7.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -53,6 +55,7 @@
   "devDependencies": {
     "@types/google-maps-react": "^2.0.4",
     "@types/react-redux": "^7.1.7",
-    "@types/redux-logger": "^3.0.7"
+    "@types/redux-logger": "^3.0.7",
+    "@types/uuid": "^7.0.2"
   }
 }

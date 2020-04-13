@@ -4,7 +4,7 @@ import { Authenticator } from 'aws-amplify-react';
 import { CognitoUser } from 'amazon-cognito-identity-js';
 
 import SignIn from './components/SignIn';
-import Room from './components/Room';
+import RoomList from './components/RoomList';
 import configureStore from './store/configureStore';
 
 const store = configureStore();
@@ -23,7 +23,7 @@ function App() {
         authState === 'signedIn'
           ?
             <Provider store={store}>
-              <Room />
+              <RoomList />
             </Provider>
           :
             <Authenticator hideDefault={true} onStateChange={onStateChange}>
